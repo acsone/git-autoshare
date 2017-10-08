@@ -11,7 +11,8 @@ git-autoshare
 .. image:: https://coveralls.io/repos/acsone/git-autoshare/badge.svg?branch=master&service=github
    :target: https://coveralls.io/github/acsone/git-autoshare?branch=master
 
-``git-autoshare`` is a git wrapper that automatically uses the ``--reference`` 
+``git-autoshare`` is a git wrapper that automatically uses the `--reference 
+<https://git-scm.com/docs/git-clone#git-clone---reference-if-ableltrepositorygt>`_
 option of ``git clone`` to save disk space and download time.
 
 Installation
@@ -41,11 +42,8 @@ git-autoshare installs itself both as a ``git`` executable, and a ``git-autoshar
 Usage
 ~~~~~
 
-git clone
----------
-
 By default, the git-autoshare provided ``git`` executable should be completely transparent and 
-behave exactly as git.
+behave exactly like your regular git.
 
 To configure it, create a file named ``git-autoshare/repos.yml`` in your user configuration 
 directory (often ``~/.config`` on Linux). This file must have the following structre::
@@ -57,26 +55,29 @@ directory (often ``~/.config`` on Linux). This file must have the following stru
         ...:
     ...:
 
-It lists all git hosts, repositories, and orgnizations that are subject to the sharing
+It lists all git hosts, repositories, and organizations that are subject to the sharing
 of git objects. Here is an example::
 
     github.com:
         odoo:
             - odoo
             - OCA
-        mis-buidler:
+        mis-builder:
             - OCA
             - acsone
 
+git clone
+---------
+
 When configuring like this, when you git clone the odoo or mis-builder repositories, 
 from one of these github organizations, git-autoshare will automatically insert the
---reference option in the git command.
+``--reference`` option in the git command.
 
 For instance::
 
     $ git clone https://github.com/odoo/odoo
 
-Will be transformed into::
+will be transformed into::
 
     $ /usr/bin/git clone --reference ~/.cache/git-autoshare/github.com/odoo https://github.com/odoo/odoo
 
