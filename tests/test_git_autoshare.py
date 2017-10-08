@@ -92,8 +92,10 @@ def test_clone(config):
     subprocess.check_call([
         'git', 'clone', 'https://github.com/acsone/git-aggregator.git',
         str(clone_dir)])
-    # check clone succeeded
-    assert clone_dir.join('.git').check(dir=1)
-    # check prefetch in cache succeeded
-    assert config.cache_dir.join('github.com').join('git-aggregator').\
-        join('objects').check(dir=1)
+    alternates_file = clone_dir.join('.git').join('objects').\
+        join('info').join('alternates')
+    cache_objects_dir = config.cache_dir.join('github.com').\
+        join('git-aggregator').join('objects')
+    assert alternates_file.check(file=1)
+    assert alternates_file.read().strip() == str(cache_objects_dir)
+    assert cache_objects_dir.check(dir=1)
