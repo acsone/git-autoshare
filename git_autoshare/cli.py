@@ -2,6 +2,8 @@
 # Copyright © 2017 ACSONE SA/NV
 # License GPLv3 (http://www.gnu.org/licenses/gpl-3.0-standalone.html)
 
+from __future__ import print_function
+
 import os
 import subprocess
 import sys
