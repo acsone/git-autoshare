@@ -27,7 +27,7 @@ To install pipsi, first run this::
     $ curl https://raw.githubusercontent.com/mitsuhiko/pipsi/master/get-pipsi.py | python
 
 Follow the instructions, you'll have to update your ``PATH`` and make sure the script directory
-comes before git in your ``PATH``.
+comes before your regular ``git`` in your ``PATH``.
 
 Then simply run::
 
@@ -37,7 +37,7 @@ To upgrade git-autoshare at any time::
 
     $ pipsi upgrade git-autoshare
 
-git-autoshare installs itself both as a ``git`` executable, and a ``git-autoshare`` executable.
+``git-autoshare`` installs itself both as a ``git`` executable, and a ``git-autoshare`` executable.
 
 Usage
 ~~~~~
@@ -103,3 +103,10 @@ This location can be configured with the `GIT_AUTOSHARE_CACHE_DIR` environment v
 
 The default configuration file is named `repos.yml` where `appdirs <https://pypi.python.org/pypi/appdirs>`_.user_config_dir is.
 This location can be configured with the `GIT_AUTOSHARE_CONFIG_DIR` environment variable.
+
+Credits
+~~~~~~~
+
+Author:
+
+  * Stéphane Bidoul (`ACSONE <http://acsone.eu/>`_)
