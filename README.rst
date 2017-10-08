@@ -8,8 +8,8 @@ git-autoshare
     :target: http://badge.fury.io/py/git-autoshare
 .. image:: https://travis-ci.org/acsone/git-autoshare.svg?branch=master
    :target: https://travis-ci.org/acsone/git-autoshare
-.. image:: https://coveralls.io/repos/acsone/git-autoshare/badge.svg?branch=master&service=github
-   :target: https://coveralls.io/github/acsone/git-autoshare?branch=master
+.. image:: https://codecov.io/gh/acsone/git-autoshare/branch/master/graph/badge.svg
+   :target: https://codecov.io/gh/acsone/git-autoshare
 
 ``git-autoshare`` is a git wrapper that automatically uses the `--reference 
 <https://git-scm.com/docs/git-clone#git-clone---reference-if-ableltrepositorygt>`_
