@@ -8,7 +8,8 @@ import setuptools
 setuptools.setup(
     name='git-autoshare',
     use_scm_version=True,
-    description='A git clone wrapper that automatically uses --reference.',
+    description='A git clone wrapper that automatically uses --reference '
+                'to save time and space.',
     long_description='\n'.join((
         open('README.rst').read(),
         open('CHANGES.rst').read(),
