@@ -94,3 +94,11 @@ It can also prefetch one single repository, for example::
 
     $ git prefetch https://github.com/odoo/odoo.git
 
+Configuration
+~~~~~~~~~~~~~
+
+The cache directory is named `git-autoshare` where `appdirs <https://pypi.python.org/pypi/appdirs>`_.user_cache_dir is.
+This location can be configured with the `GIT_AUTOSHARE_CACHE_DIR` environment variable.
+
+The default configuration file is named `repos.yml` where `appdirs <https://pypi.python.org/pypi/appdirs>`_.user_config_dir is.
+This location can be configured with the `GIT_AUTOSHARE_CONFIG_DIR` environment variable.
