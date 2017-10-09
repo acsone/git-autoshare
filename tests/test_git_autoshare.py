@@ -17,6 +17,7 @@ class Config:
         self.work_dir = tmpdir_factory.mktemp('work')
         os.environ['GIT_AUTOSHARE_CACHE_DIR'] = str(self.cache_dir)
         os.environ['GIT_AUTOSHARE_CONFIG_DIR'] = str(self.config_dir)
+        self.git = 'git-autoshare'
 
     def write_repos_yml(self, d):
         yaml.dump(d, self.config_dir.join('repos.yml').open('w'))
@@ -37,10 +38,10 @@ def test_prefetch_all(config):
         },
     })
     host_dir = config.cache_dir.join('github.com')
-    subprocess.check_call(['git', 'prefetch'])
+    subprocess.check_call([config.git, 'prefetch'])
     assert host_dir.check(dir=1)
     assert host_dir.join('mis-builder').join('objects').check(dir=1)
-    subprocess.check_call(['git', 'prefetch'])
+    subprocess.check_call([config.git, 'prefetch'])
 
 
 def test_prefetch_one(config):
@@ -57,19 +58,20 @@ def test_prefetch_one(config):
     })
     host_dir = config.cache_dir.join('github.com')
     subprocess.check_call([
-        'git', 'prefetch', 'https://github.com/acsone/git-aggregator.git'])
+        config.git, 'prefetch',
+        'https://github.com/acsone/git-aggregator.git'])
     assert host_dir.check(dir=1)
     assert host_dir.join('git-aggregator').join('objects').check(dir=1)
     assert host_dir.join('mis-builder').check(exists=0)
     r = subprocess.call([
-        'git', 'prefetch', 'https://github.com/acsone/notfound.git'])
+        config.git, 'prefetch', 'https://github.com/acsone/notfound.git'])
     assert r != 0
 
 
 def test_clone_no_repos_yml(config):
     clone_dir = config.work_dir.join('git-aggregator')
     subprocess.check_call([
-        'git', 'clone', 'https://github.com/acsone/git-aggregator.git',
+        config.git, 'clone', 'https://github.com/acsone/git-aggregator.git',
         str(clone_dir)])
     assert clone_dir.join('.git').check(dir=1)
     assert config.cache_dir.join('github.com').join('git-aggregator').\
@@ -90,7 +92,7 @@ def test_clone(config):
     })
     clone_dir = config.work_dir.join('git-aggregator')
     subprocess.check_call([
-        'git', 'clone', 'https://github.com/acsone/git-aggregator.git',
+        config.git, 'clone', 'https://github.com/acsone/git-aggregator.git',
         str(clone_dir)])
     alternates_file = clone_dir.join('.git').join('objects').\
         join('info').join('alternates')
