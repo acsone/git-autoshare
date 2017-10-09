@@ -15,6 +15,8 @@ git-autoshare
 <https://git-scm.com/docs/git-clone#git-clone---reference-if-ableltrepositorygt>`_
 to save disk space and download time.
 
+.. contents::
+
 Installation
 ~~~~~~~~~~~~
 
@@ -119,3 +121,11 @@ Credits
 Author:
 
   * Stéphane Bidoul (`ACSONE <http://acsone.eu/>`_)
+
+Maintainer:
+
+.. image:: https://www.acsone.eu/logo.png
+   :alt: ACSONE SA/NV
+   :target: https://www.acsone.eu
+
+This project is maintained by ACSONE SA/NV.
