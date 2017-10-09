@@ -11,9 +11,9 @@ git-autoshare
 .. image:: https://codecov.io/gh/acsone/git-autoshare/branch/master/graph/badge.svg
    :target: https://codecov.io/gh/acsone/git-autoshare
 
-``git-autoshare`` is a git wrapper that automatically uses the `--reference 
+``git-autoshare`` is a git clone wrapper that automatically uses `--reference 
 <https://git-scm.com/docs/git-clone#git-clone---reference-if-ableltrepositorygt>`_
-option of ``git clone`` to save disk space and download time.
+to save disk space and download time.
 
 Installation
 ~~~~~~~~~~~~
@@ -37,7 +37,7 @@ To upgrade git-autoshare at any time::
     $ pipsi upgrade git-autoshare
 
 If you want ``git autoshare-clone`` to be invoked transparently in place of ``git clone``, 
-create the following ``git`` bash script and place it in your ``PATH`` before ``/usr/bin/git``:
+create the following bash script, name id ``git``, and place it in your ``PATH`` before ``/usr/bin/git``:
 
   .. code:: bash
 
@@ -77,7 +77,7 @@ of git objects. Here is an example::
 git autoshare-clone
 -------------------
 
-When configured like the example above, when you git clone the odoo or mis-builder repositories, 
+If configured like the example above, when you git clone the odoo or mis-builder repositories 
 from one of these github organizations, ``git autoshare-clone`` will automatically insert the
 ``--reference`` option in the git clone command. For example::
 
@@ -93,7 +93,7 @@ git autoshare-prefetch
 
 The ``autoshare-prefetch`` command is mostly meant to be run in a cron job::
 
-    $ git autoshare-prefetch
+    $ git autoshare-prefetch --quiet
 
 will update the cache directory by fetching all repositories mentioned in repos.yml.
 

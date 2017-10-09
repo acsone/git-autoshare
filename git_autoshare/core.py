@@ -61,7 +61,7 @@ def shared_urls():
                 yield repo_url, host, org, repo, repo_dir
 
 
-def prefetch_one(host, orgs, repo, repo_dir):
+def prefetch_one(host, orgs, repo, repo_dir, quiet):
     if not os.path.exists(os.path.join(repo_dir, 'objects')):
         if not os.path.exists(repo_dir):
             os.makedirs(repo_dir)
@@ -73,12 +73,16 @@ def prefetch_one(host, orgs, repo, repo_dir):
         except subprocess.CalledProcessError:
             pass
         repo_url = 'https://%s/%s/%s.git' % (host, org, repo)
-        subprocess.check_call([git_bin(), 'remote', 'add', org, repo_url],
-                              cwd=repo_dir)
-    subprocess.check_call([git_bin(), 'fetch', '-q', '-f', '--all', '--tags'],
-                          cwd=repo_dir)
+        if not quiet:
+            print("git-autoshare prefetching", repo_url, "in", repo_dir)
+        subprocess.check_call([
+            git_bin(), 'remote', 'add', org, repo_url], cwd=repo_dir)
+    fetch_cmd = [git_bin(), 'fetch', '-f', '--all', '--tags']
+    if quiet:
+        fetch_cmd.append('-q')
+    subprocess.check_call(fetch_cmd, cwd=repo_dir)
 
 
-def prefetch_all():
+def prefetch_all(quiet):
     for host, orgs, repo, repo_dir in repos():
-        prefetch_one(host, orgs, repo, repo_dir)
+        prefetch_one(host, orgs, repo, repo_dir, quiet)

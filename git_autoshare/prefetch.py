@@ -6,20 +6,24 @@ from __future__ import print_function
 
 import sys
 
+import click
+
 from .core import prefetch_all, prefetch_one, shared_urls
 
 
-def main():
+@click.command()
+@click.option('--quiet', '-q', is_flag=True, default=False)
+@click.argument('repositories', metavar='<repository> ...', nargs=-1)
+def main(repositories, quiet):
     exit = 0
-    repositories = sys.argv[1:]
     if not repositories:
-        prefetch_all()
+        prefetch_all(quiet)
     else:
         for repository in repositories:
             repository == repository.lower()
             for repo_url, host, org, repo, repo_dir in shared_urls():
                 if repository == repo_url:
-                    prefetch_one(host, [org], repo, repo_dir)
+                    prefetch_one(host, [org], repo, repo_dir, quiet)
                     break
             else:
                 print(repository, 'not found in repos.yml, not prefetched.')
