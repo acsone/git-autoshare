@@ -32,9 +32,9 @@ def load_hosts():
         return {}
 
 
-def git_exe():
+def git_bin():
     # TODO a more portable way to do this
-    return '/usr/bin/git'
+    return os.environ.get('GIT_AUTOSHARE_GIT_BIN') or '/usr/bin/git'
 
 
 def repos():
@@ -66,17 +66,17 @@ def prefetch_one(host, orgs, repo, repo_dir):
     if not os.path.exists(os.path.join(repo_dir, 'objects')):
         if not os.path.exists(repo_dir):
             os.makedirs(repo_dir)
-        subprocess.check_call(['git', 'init', '--bare'], cwd=repo_dir)
+        subprocess.check_call([git_bin(), 'init', '--bare'], cwd=repo_dir)
     for org in orgs:
         try:
-            subprocess.check_output(['git', 'remote', 'remove', org],
+            subprocess.check_output([git_bin(), 'remote', 'remove', org],
                                     stderr=subprocess.STDOUT, cwd=repo_dir)
         except subprocess.CalledProcessError:
             pass
         repo_url = 'https://%s/%s/%s.git' % (host, org, repo)
-        subprocess.check_call(['git', 'remote', 'add', org, repo_url],
+        subprocess.check_call([git_bin(), 'remote', 'add', org, repo_url],
                               cwd=repo_dir)
-    subprocess.check_call(['git', 'fetch', '-q', '-f', '--all', '--tags'],
+    subprocess.check_call([git_bin(), 'fetch', '-q', '-f', '--all', '--tags'],
                           cwd=repo_dir)
 
 
@@ -106,7 +106,7 @@ def main():
         #
         # clone --reference
         #
-        cmd = [git_exe()] + sys.argv[1:]
+        cmd = [git_bin()] + sys.argv[1:]
         if len(sys.argv) > 1 and sys.argv[1] == 'clone':
             found = False
             for repo_url, host, org, repo, repo_dir in shared_urls():

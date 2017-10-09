@@ -37,7 +37,6 @@ setuptools.setup(
     entry_points={
         'console_scripts': [
             "git-autoshare=git_autoshare.cli:main",
-            "git=git_autoshare.cli:main",
         ],
     },
 )

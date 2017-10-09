@@ -26,8 +26,7 @@ To install pipsi, first run this::
 
     $ curl https://raw.githubusercontent.com/mitsuhiko/pipsi/master/get-pipsi.py | python
 
-Follow the instructions, you'll have to update your ``PATH`` and make sure the script directory
-comes before your regular ``git`` in your ``PATH``.
+Follow the instructions, you'll have to update your ``PATH``.
 
 Then simply run::
 
@@ -37,13 +36,13 @@ To upgrade git-autoshare at any time::
 
     $ pipsi upgrade git-autoshare
 
-``git-autoshare`` installs itself both as a ``git`` executable, and a ``git-autoshare`` executable.
+If you want to invoke ``git-autoshare`` transparently whenever you or an external tool such as ``pip`` invokes ``git``, 
+create a symbolic link named ``git`` and make sure it comes before your regular ``git`` in your ``PATH``.
+This should be completely transparent and behave exactly like your regular git, except it has a new ``prefetch``
+command and it inserts the ``--reference`` option in ``git clone`` commands.
 
 Usage
 ~~~~~
-
-By default, the git-autoshare provided ``git`` executable should be completely transparent and 
-behave exactly like your regular git.
 
 To configure it, create a file named ``git-autoshare/repos.yml`` in your user configuration 
 directory (often ``~/.config`` on Linux). This file must have the following structre::
@@ -70,7 +69,7 @@ git clone
 ---------
 
 When configuring like this, when you git clone the odoo or mis-builder repositories, 
-from one of these github organizations, git-autoshare will automatically insert the
+from one of these github organizations, ``git-autoshare`` will automatically insert the
 ``--reference`` option in the git command.
 
 For instance::
@@ -98,11 +97,14 @@ It can also prefetch one single repository, for example::
 Configuration
 ~~~~~~~~~~~~~
 
-The cache directory is named `git-autoshare` where `appdirs <https://pypi.python.org/pypi/appdirs>`_.user_cache_dir is.
-This location can be configured with the `GIT_AUTOSHARE_CACHE_DIR` environment variable.
+The cache directory is named ``git-autoshare`` where `appdirs <https://pypi.python.org/pypi/appdirs>`_.user_cache_dir is.
+This location can be configured with the ``GIT_AUTOSHARE_CACHE_DIR`` environment variable.
 
-The default configuration file is named `repos.yml` where `appdirs <https://pypi.python.org/pypi/appdirs>`_.user_config_dir is.
-This location can be configured with the `GIT_AUTOSHARE_CONFIG_DIR` environment variable.
+The default configuration file is named ``repos.yml`` where `appdirs <https://pypi.python.org/pypi/appdirs>`_.user_config_dir is.
+This location can be configured with the ``GIT_AUTOSHARE_CONFIG_DIR`` environment variable.
+
+By default ``git-autoshare`` invokes ``git`` as ``/usr/bin/git``. This can be configured with the ``GIT_AUTOSHARE_GIT_BIN``
+environment variable.
 
 Credits
 ~~~~~~~
