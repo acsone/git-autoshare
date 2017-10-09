@@ -36,7 +36,8 @@ setuptools.setup(
     test_suite='tests',
     entry_points={
         'console_scripts': [
-            "git-autoshare=git_autoshare.cli:main",
+            "git-autoshare-clone=git_autoshare.clone:main",
+            "git-autoshare-prefetch=git_autoshare.prefetch:main",
         ],
     },
 )

@@ -36,10 +36,19 @@ To upgrade git-autoshare at any time::
 
     $ pipsi upgrade git-autoshare
 
-If you want to invoke ``git-autoshare`` transparently whenever you or an external tool such as ``pip`` invokes ``git``, 
-create a symbolic link named ``git`` and make sure it comes before your regular ``git`` in your ``PATH``.
-This should be completely transparent and behave exactly like your regular git, except it has a new ``prefetch``
-command and it inserts the ``--reference`` option in ``git clone`` commands.
+If you want ``git autoshare-clone`` to be invoked transparently in place of ``git clone``, 
+create the following ``git`` bash script and place it in your ``PATH`` before ``/usr/bin/git``:
+
+  .. code:: bash
+
+    #!/bin/bash
+    if [ "$1" == "clone" ]
+    then
+        shift
+        /usr/bin/git autoshare-clone "$@"
+    else
+        /usr/bin/git "$@"
+    fi
 
 Usage
 ~~~~~
@@ -65,34 +74,32 @@ of git objects. Here is an example::
             - OCA
             - acsone
 
-git clone
----------
+git autoshare-clone
+-------------------
 
-When configuring like this, when you git clone the odoo or mis-builder repositories, 
-from one of these github organizations, ``git-autoshare`` will automatically insert the
-``--reference`` option in the git command.
+When configured like the example above, when you git clone the odoo or mis-builder repositories, 
+from one of these github organizations, ``git autoshare-clone`` will automatically insert the
+``--reference`` option in the git clone command. For example::
 
-For instance::
-
-    $ git clone https://github.com/odoo/odoo
+    $ git autoshare-clone https://github.com/odoo/odoo
 
 will be transformed into::
 
     $ /usr/bin/git clone --reference ~/.cache/git-autoshare/github.com/odoo https://github.com/odoo/odoo
 
 
-git prefetch
-------------
+git autoshare-prefetch
+----------------------
 
-git-autoshare adds a prefetch command that is mostly meant to be run in a cron job::
+The ``autoshare-prefetch`` command is mostly meant to be run in a cron job::
 
-    $ git prefetch
+    $ git autoshare-prefetch
 
 will update the cache directory by fetching all repositories mentioned in repos.yml.
 
 It can also prefetch one single repository, for example::
 
-    $ git prefetch https://github.com/odoo/odoo.git
+    $ git autoshare-prefetch https://github.com/odoo/odoo.git
 
 Configuration
 ~~~~~~~~~~~~~

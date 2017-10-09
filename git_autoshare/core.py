@@ -6,7 +6,6 @@ from __future__ import print_function
 
 import os
 import subprocess
-import sys
 
 import appdirs
 import yaml
@@ -33,7 +32,7 @@ def load_hosts():
 
 
 def git_bin():
-    # TODO a more portable way to do this
+    # TODO something more portable than /usr/bin/git
     return os.environ.get('GIT_AUTOSHARE_GIT_BIN') or '/usr/bin/git'
 
 
@@ -83,43 +82,3 @@ def prefetch_one(host, orgs, repo, repo_dir):
 def prefetch_all():
     for host, orgs, repo, repo_dir in repos():
         prefetch_one(host, orgs, repo, repo_dir)
-
-
-def main():
-    if len(sys.argv) in (2, 3) and sys.argv[1] == 'prefetch':
-        #
-        # prefetch
-        #
-        if len(sys.argv) == 3:
-            found = False
-            for repo_url, host, org, repo, repo_dir in shared_urls():
-                if sys.argv[2].lower() == repo_url:
-                    prefetch_one(host, [org], repo, repo_dir)
-                    found = True
-                    break
-            else:
-                print(sys.argv[2], 'not found in repos.yml, not prefetched.')
-                sys.exit(1)
-        else:
-            prefetch_all()
-    else:
-        #
-        # clone --reference
-        #
-        cmd = [git_bin()] + sys.argv[1:]
-        if len(sys.argv) > 1 and sys.argv[1] == 'clone':
-            found = False
-            for repo_url, host, org, repo, repo_dir in shared_urls():
-                for i, arg in enumerate(sys.argv):
-                    if arg.lower() == repo_url:
-                        found = True
-                        break
-                if found:
-                    break
-            if found:
-                print("git-autoshare", repo_dir)
-                if not os.path.exists(repo_dir):
-                    prefetch_one(host, [org], repo, repo_dir)
-                cmd = cmd[:i] + ['--reference', repo_dir] + cmd[i:]
-        r = subprocess.call(cmd)
-        sys.exit(r)
