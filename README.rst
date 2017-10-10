@@ -39,7 +39,7 @@ To upgrade git-autoshare at any time::
     $ pipsi upgrade git-autoshare
 
 If you want ``git autoshare-clone`` to be invoked transparently in place of ``git clone``, 
-create the following bash script, name id ``git``, and place it in your ``PATH`` before ``/usr/bin/git``:
+create the following bash script, name it ``git``, and place it in your ``PATH`` before ``/usr/bin/git``:
 
   .. code:: bash
 
@@ -109,10 +109,12 @@ It can also prefetch one single repository, for example::
 Environment variables
 ---------------------
 
-The cache directory is named ``git-autoshare`` where `appdirs <https://pypi.python.org/pypi/appdirs>`_.user_cache_dir is.
+The cache directory is named ``git-autoshare`` where `appdirs <https://pypi.python.org/pypi/appdirs>`_.user_cache_dir is 
+(usually ~/.cache/git-autoshare/).
 This location can be configured with the ``GIT_AUTOSHARE_CACHE_DIR`` environment variable.
 
-The default configuration file is named ``repos.yml`` where `appdirs <https://pypi.python.org/pypi/appdirs>`_.user_config_dir is.
+The default configuration file is named ``repos.yml`` where `appdirs <https://pypi.python.org/pypi/appdirs>`_.user_config_dir is
+(usually ~/.config/git-autoshare/).
 This location can be configured with the ``GIT_AUTOSHARE_CONFIG_DIR`` environment variable.
 
 By default ``git-autoshare`` invokes ``git`` as ``/usr/bin/git``. This can be configured with the ``GIT_AUTOSHARE_GIT_BIN``
