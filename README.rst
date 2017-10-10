@@ -11,7 +11,7 @@ git-autoshare
 .. image:: https://codecov.io/gh/acsone/git-autoshare/branch/master/graph/badge.svg
    :target: https://codecov.io/gh/acsone/git-autoshare
 
-``git-autoshare`` is a git clone wrapper that automatically uses `--reference 
+A git clone wrapper that automatically uses `--reference 
 <https://git-scm.com/docs/git-clone#git-clone---reference-if-ableltrepositorygt>`_
 to save disk space and download time.
 
