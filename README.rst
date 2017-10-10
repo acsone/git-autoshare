@@ -55,6 +55,9 @@ create the following bash script, name id ``git``, and place it in your ``PATH``
 Usage
 ~~~~~
 
+Configuration file
+------------------
+
 To configure it, create a file named ``git-autoshare/repos.yml`` in your user configuration 
 directory (often ``~/.config`` on Linux). This file must have the following structre::
 
@@ -76,8 +79,8 @@ of git objects. Here is an example::
             - OCA
             - acsone
 
-git autoshare-clone
--------------------
+git autoshare-clone command
+---------------------------
 
 If configured like the example above, when you git clone the odoo or mis-builder repositories 
 from one of these github organizations, ``git autoshare-clone`` will automatically insert the
@@ -90,8 +93,8 @@ will be transformed into::
     $ /usr/bin/git clone --reference ~/.cache/git-autoshare/github.com/odoo https://github.com/odoo/odoo
 
 
-git autoshare-prefetch
-----------------------
+git autoshare-prefetch command
+------------------------------
 
 The ``autoshare-prefetch`` command is mostly meant to be run in a cron job::
 
@@ -103,8 +106,8 @@ It can also prefetch one single repository, for example::
 
     $ git autoshare-prefetch https://github.com/odoo/odoo.git
 
-Configuration
-~~~~~~~~~~~~~
+Environment variables
+---------------------
 
 The cache directory is named ``git-autoshare`` where `appdirs <https://pypi.python.org/pypi/appdirs>`_.user_cache_dir is.
 This location can be configured with the ``GIT_AUTOSHARE_CACHE_DIR`` environment variable.
