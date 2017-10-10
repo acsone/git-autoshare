@@ -34,7 +34,9 @@ setuptools.setup(
         'pyyaml',
     ],
     python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*',
-    test_suite='tests',
+    setup_requires=[
+        'setuptools-scm',
+    ],
     entry_points={
         'console_scripts': [
             "git-autoshare-clone=git_autoshare.clone:main",
