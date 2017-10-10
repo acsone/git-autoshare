@@ -40,7 +40,7 @@ def test_prefetch_all(config):
     subprocess.check_call(['git', 'autoshare-prefetch'])
     assert host_dir.check(dir=1)
     assert host_dir.join('mis-builder').join('objects').check(dir=1)
-    subprocess.check_call(['git', 'autoshare-prefetch'])
+    subprocess.check_call(['git', 'autoshare-prefetch', '--quiet'])
 
 
 def test_prefetch_one(config):
