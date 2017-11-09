@@ -28,6 +28,7 @@ def load_hosts():
     if os.path.exists(repos_file):
         return yaml.load(open(repos_file))
     else:
+        print("git-autoshare ", repos_file, " not found. No hosts to load.")
         return {}
 
 
