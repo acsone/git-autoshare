@@ -21,9 +21,9 @@ def main(repositories, quiet):
     else:
         for repository in repositories:
             repository == repository.lower()
-            for repo_url, host, org, repo, repo_dir in shared_urls():
+            for repo_url, host, org, repo, repo_dir, private in shared_urls():
                 if repository == repo_url:
-                    prefetch_one(host, [org], repo, repo_dir, quiet)
+                    prefetch_one(host, [org], repo, repo_dir, private, quiet)
                     break
             else:
                 print(repository, 'not found in repos.yml, not prefetched.')

@@ -30,8 +30,14 @@ def config(tmpdir_factory):
 def test_prefetch_all(config):
     config.write_repos_yml({
         'github.com': {
-            'mis-builder': [
-                'OCA',
+            'mis-builder': {
+                'orgs': [
+                    'OCA',
+                    'acsone',
+                ],
+                'private': False,
+            },
+            'git-aggregator': [
                 'acsone',
             ],
         },
@@ -40,6 +46,7 @@ def test_prefetch_all(config):
     subprocess.check_call(['git', 'autoshare-prefetch'])
     assert host_dir.check(dir=1)
     assert host_dir.join('mis-builder').join('objects').check(dir=1)
+    assert host_dir.join('git-aggregator').join('objects').check(dir=1)
     subprocess.check_call(['git', 'autoshare-prefetch', '--quiet'])
 
 

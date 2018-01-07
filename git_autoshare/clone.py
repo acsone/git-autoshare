@@ -21,7 +21,7 @@ def main():
     if not skip:
         quiet = '-q' in cmd or '--quiet' in cmd
         found = False
-        for repo_url, host, org, repo, repo_dir in shared_urls():
+        for repo_url, host, org, repo, repo_dir, private in shared_urls():
             for i, arg in enumerate(cmd):
                 if arg.lower() == repo_url:
                     found = True
@@ -30,7 +30,7 @@ def main():
                 break
         if found:
             if not os.path.exists(repo_dir):
-                prefetch_one(host, [org], repo, repo_dir, quiet)
+                prefetch_one(host, [org], repo, repo_dir, private, quiet)
             if not quiet:
                 print("git-autoshare clone added --reference", repo_dir)
             cmd = cmd[:i] + ['--reference', repo_dir] + cmd[i:]

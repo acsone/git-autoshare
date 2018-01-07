@@ -63,8 +63,10 @@ directory (often ``~/.config`` on Linux). This file must have the following stru
 
     host:
         repo:
-            - organization
-            - ...
+            orgs:
+                - organization
+                - ...
+            private: (True|False)
         ...:
     ...:
 
@@ -73,11 +75,20 @@ of git objects. Here is an example::
 
     github.com:
         odoo:
-            - odoo
-            - OCA
+            orgs:
+                - odoo
+                - OCA
+        enterprise:
+            orgs:
+                - odoo
+                - acsone
+            private: True
         mis-builder:
+            # shortcut to provides organizations
             - OCA
             - acsone
+
+Note the use of the ``private`` option, used to force fetching using the ssh protocol.
 
 git autoshare-clone command
 ---------------------------
