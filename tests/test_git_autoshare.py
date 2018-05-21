@@ -19,7 +19,8 @@ class Config:
         os.environ['GIT_AUTOSHARE_CONFIG_DIR'] = str(self.config_dir)
 
     def write_repos_yml(self, d):
-        yaml.dump(d, self.config_dir.join('repos.yml').open('w'))
+        with self.config_dir.join('repos.yml').open('w') as f:
+            yaml.dump(d, f)
 
 
 @pytest.fixture(scope='function')
