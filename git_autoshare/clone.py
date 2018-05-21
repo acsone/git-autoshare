@@ -23,6 +23,8 @@ def main():
         found = False
         for repo_url, host, org, repo, repo_dir, private in shared_urls():
             for i, arg in enumerate(cmd):
+                if arg.startswith('-'):
+                    continue
                 if arg.lower() == repo_url:
                     found = True
                     break
