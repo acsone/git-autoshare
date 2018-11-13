@@ -41,6 +41,7 @@ setuptools.setup(
         'console_scripts': [
             "git-autoshare-clone=git_autoshare.clone:main",
             "git-autoshare-prefetch=git_autoshare.prefetch:main",
+            "git-autoshare-submodule-add=git_autoshare.submodule:add",
         ],
     },
 )
