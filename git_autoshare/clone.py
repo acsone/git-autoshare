@@ -8,33 +8,36 @@ import os
 import subprocess
 import sys
 
-from .core import git_bin, prefetch_one, shared_urls
+from .core import git_bin, prefetch_one, _repo_cached
 
 
 def main():
     cmd = [git_bin(), 'clone'] + sys.argv[1:]
-    skip = \
-        '--reference' in cmd or \
-        '--reference-if-able' in cmd or \
-        '-s' in cmd or \
-        '--share' in cmd
+    skip = any(
+        c in cmd for c in [
+            '--reference',
+            '--reference-if-able',
+            '-s',
+            '--share',
+        ]
+    )
     if not skip:
         quiet = '-q' in cmd or '--quiet' in cmd
         found = False
-        for repo_url, host, org, repo, repo_dir, private in shared_urls():
-            for i, arg in enumerate(cmd):
-                if arg.startswith('-'):
-                    continue
-                if arg.lower() == repo_url:
-                    found = True
-                    break
-            if found:
-                break
+        found, index, kwargs = _repo_cached(cmd)
+        kwargs.update({
+            'quiet': quiet,
+        })
         if found:
-            if not os.path.exists(repo_dir):
-                prefetch_one(host, [org], repo, repo_dir, private, quiet)
+            if not os.path.exists(kwargs['repo_dir']):
+                prefetch_one(**kwargs)
             if not quiet:
-                print("git-autoshare clone added --reference", repo_dir)
-            cmd = cmd[:i] + ['--reference', repo_dir] + cmd[i:]
+                print(
+                    "git-autoshare clone added --reference",
+                    kwargs['repo_dir']
+                )
+            cmd = (cmd[:index] +
+                   ['--reference', kwargs['repo_dir']] +
+                   cmd[index:])
     r = subprocess.call(cmd)
     sys.exit(r)
