@@ -15,6 +15,8 @@ class Config:
         self.cache_dir = tmpdir_factory.mktemp('cache')
         self.config_dir = tmpdir_factory.mktemp('config')
         self.work_dir = tmpdir_factory.mktemp('work')
+        self.repo_dir = tmpdir_factory.mktemp('repo')
+        subprocess.call(['git', 'init', str(self.repo_dir)])
         os.environ['GIT_AUTOSHARE_CACHE_DIR'] = str(self.cache_dir)
         os.environ['GIT_AUTOSHARE_CONFIG_DIR'] = str(self.config_dir)
 
@@ -111,3 +113,34 @@ def test_clone(config):
     assert alternates_file.check(file=1)
     assert alternates_file.read().strip() == str(cache_objects_dir)
     assert cache_objects_dir.check(dir=1)
+
+
+def test_submodule(config):
+    config.write_repos_yml({
+        'github.com': {
+            'mis-builder': [
+                'OCA',
+                'acsone',
+            ],
+            'git-aggregator': [
+                'acsone',
+            ],
+        },
+    })
+    local_path = './git-aggregator'
+    old_cwd = os.getcwd()
+    # we need to cd into a repository for git submodule to work
+    os.chdir(str(config.repo_dir))
+    subprocess.check_call([
+        'git', 'autoshare-submodule-add',
+        'https://github.com/acsone/git-aggregator.git',
+        local_path])
+    alternates_file = config.repo_dir.join('.git').join('modules')\
+        .join('git-aggregator').join('objects').join('info').join('alternates')
+    cache_objects_dir = config.cache_dir.join('github.com').\
+        join('git-aggregator').join('objects')
+    assert alternates_file.check(file=1)
+    assert alternates_file.read().strip() == str(cache_objects_dir)
+    assert cache_objects_dir.check(dir=1)
+    # we return to the old place just in case
+    os.chdir(old_cwd)
