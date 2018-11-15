@@ -8,6 +8,8 @@ import subprocess
 import pytest
 import yaml
 
+from git_autoshare.core import git_bin, _repo_cached
+
 
 class Config:
 
@@ -144,3 +146,44 @@ def test_submodule(config):
     assert cache_objects_dir.check(dir=1)
     # we return to the old place just in case
     os.chdir(old_cwd)
+
+
+def test_repo_cached(config):
+    config.write_repos_yml({
+        'github.com': {
+            'mis-builder': [
+                'OCA',
+                'acsone',
+            ],
+            'git-aggregator': [
+                'acsone',
+            ],
+        },
+    })
+    cmd = [git_bin(), 'clone', 'https://github.com/acsone/git-aggregator.git']
+    found, index, kwargs = _repo_cached(cmd)
+    assert found is True
+    assert index == 2
+    assert kwargs == {
+        'host': 'github.com',
+        'orgs': ['acsone'],
+        'private': False,
+        'repo': 'git-aggregator',
+        'repo_dir': os.path.join(
+            str(config.cache_dir),
+            'github.com/git-aggregator',
+        ),
+    }
+
+    cmd = [git_bin(), 'clone', 'https://github.com/acsone/git-autoshare.git']
+    found, index, kwargs = _repo_cached(cmd)
+    assert found is False
+    assert index == 0
+    assert kwargs == {}
+
+    cmd = [git_bin(), 'clone', '--verbose ',
+           'https://github.com/acsone/git-autoshare.git']
+    found, index, kwargs = _repo_cached(cmd)
+    assert found is False
+    assert index == 0
+    assert kwargs == {}
