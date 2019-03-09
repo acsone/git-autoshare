@@ -97,7 +97,8 @@ will be transformed into::
 
 
 git autoshare-submodule-add command
----------------------------
+-----------------------------------
+
 Same as ``git autoshare-clone`` command, you can add submodules with a
 reference. for example::
 

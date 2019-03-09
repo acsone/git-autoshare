@@ -8,36 +8,24 @@ import os
 import subprocess
 import sys
 
-from .core import git_bin, prefetch_one, _repo_cached
+from .core import _repo_cached, git_bin, prefetch_one
 
 
 def main():
-    cmd = [git_bin(), 'clone'] + sys.argv[1:]
+    cmd = [git_bin(), "clone"] + sys.argv[1:]
     skip = any(
-        c in cmd for c in [
-            '--reference',
-            '--reference-if-able',
-            '-s',
-            '--share',
-        ]
+        c in cmd for c in ["--reference", "--reference-if-able", "-s", "--share"]
     )
     if not skip:
-        quiet = '-q' in cmd or '--quiet' in cmd
+        quiet = "-q" in cmd or "--quiet" in cmd
         found = False
         found, index, kwargs = _repo_cached(cmd)
-        kwargs.update({
-            'quiet': quiet,
-        })
+        kwargs.update({"quiet": quiet})
         if found:
-            if not os.path.exists(kwargs['repo_dir']):
+            if not os.path.exists(kwargs["repo_dir"]):
                 prefetch_one(**kwargs)
             if not quiet:
-                print(
-                    "git-autoshare clone added --reference",
-                    kwargs['repo_dir']
-                )
-            cmd = (cmd[:index] +
-                   ['--reference', kwargs['repo_dir']] +
-                   cmd[index:])
+                print("git-autoshare clone added --reference", kwargs["repo_dir"])
+            cmd = cmd[:index] + ["--reference", kwargs["repo_dir"]] + cmd[index:]
     r = subprocess.call(cmd)
     sys.exit(r)

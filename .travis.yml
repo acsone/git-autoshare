@@ -6,12 +6,15 @@ python:
   - "3.4"
   - "3.5"
   - "3.6"
+  - "3.7"
 
 install:
   - pip install tox-travis codecov
 
 script:
   - tox
+  - tox -e check_readme
+  - tox -e pre_commit
 
 after_success:
   - codecov

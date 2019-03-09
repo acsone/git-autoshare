@@ -12,8 +12,8 @@ from .core import prefetch_all, prefetch_one, shared_urls
 
 
 @click.command()
-@click.option('--quiet', '-q', is_flag=True, default=False)
-@click.argument('repositories', metavar='<repository> ...', nargs=-1)
+@click.option("--quiet", "-q", is_flag=True, default=False)
+@click.argument("repositories", metavar="<repository> ...", nargs=-1)
 def main(repositories, quiet):
     exit = 0
     if not repositories:
@@ -26,6 +26,6 @@ def main(repositories, quiet):
                     prefetch_one(host, [org], repo, repo_dir, private, quiet)
                     break
             else:
-                print(repository, 'not found in repos.yml, not prefetched.')
+                print(repository, "not found in repos.yml, not prefetched.")
                 exit += 1
     sys.exit(exit)
