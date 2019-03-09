@@ -74,6 +74,29 @@ def shared_urls():
                 yield repo_url, host, org, repo, repo_dir, private
 
 
+def _repo_cached(cmd):
+    found = False
+    for repo_url, host, org, repo, repo_dir, private in shared_urls():
+        for index, arg in enumerate(cmd):
+            if arg.startswith('-'):
+                continue
+            if arg.lower() == repo_url:
+                found = True
+                break
+        if found:
+            break
+    if found:
+        return found, index, {
+            'host': host,
+            'orgs': [org],
+            'repo': repo,
+            'repo_dir': repo_dir,
+            'private': private,
+        }
+    else:
+        return False, 0, {}
+
+
 def git_remotes(repo_dir='.'):
     remotes = subprocess.check_output([git_bin(), 'remote'],
                                       cwd=repo_dir, universal_newlines=True)

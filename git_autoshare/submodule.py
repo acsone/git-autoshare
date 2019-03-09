@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright © 2017 ACSONE SA/NV
+# Copyright 2018 Camptocamp SA
 # License GPLv3 (http://www.gnu.org/licenses/gpl-3.0-standalone.html)
 
 from __future__ import print_function
@@ -11,16 +11,9 @@ import sys
 from .core import git_bin, prefetch_one, _repo_cached
 
 
-def main():
-    cmd = [git_bin(), 'clone'] + sys.argv[1:]
-    skip = any(
-        c in cmd for c in [
-            '--reference',
-            '--reference-if-able',
-            '-s',
-            '--share',
-        ]
-    )
+def add():
+    cmd = [git_bin(), 'submodule', 'add'] + sys.argv[1:]
+    skip = '--reference' in cmd
     if not skip:
         quiet = '-q' in cmd or '--quiet' in cmd
         found = False
@@ -33,7 +26,7 @@ def main():
                 prefetch_one(**kwargs)
             if not quiet:
                 print(
-                    "git-autoshare clone added --reference",
+                    "git-autoshare submodule-add added --reference",
                     kwargs['repo_dir']
                 )
             cmd = (cmd[:index] +

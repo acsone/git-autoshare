@@ -11,7 +11,7 @@ git-autoshare
 .. image:: https://codecov.io/gh/acsone/git-autoshare/branch/master/graph/badge.svg
    :target: https://codecov.io/gh/acsone/git-autoshare
 
-A git clone wrapper that automatically uses `--reference 
+A git clone wrapper that automatically uses `--reference
 <https://git-scm.com/docs/git-clone#git-clone---reference-if-ableltrepositorygt>`_
 to save disk space and download time.
 
@@ -38,7 +38,7 @@ To upgrade git-autoshare at any time::
 
     $ pipsi upgrade git-autoshare
 
-If you want ``git autoshare-clone`` to be invoked transparently in place of ``git clone``, 
+If you want ``git autoshare-clone`` to be invoked transparently in place of ``git clone``,
 create the following bash script, name it ``git``, and place it in your ``PATH`` before ``/usr/bin/git``:
 
   .. code:: bash
@@ -58,7 +58,7 @@ Usage
 Configuration file
 ------------------
 
-To configure it, create a file named ``git-autoshare/repos.yml`` in your user configuration 
+To configure it, create a file named ``git-autoshare/repos.yml`` in your user configuration
 directory (often ``~/.config`` on Linux). This file must have the following structre::
 
     host:
@@ -93,7 +93,7 @@ Note the use of the ``private`` option, used to force fetching using the ssh pro
 git autoshare-clone command
 ---------------------------
 
-If configured like the example above, when you git clone the odoo or mis-builder repositories 
+If configured like the example above, when you git clone the odoo or mis-builder repositories
 from one of these github organizations, ``git autoshare-clone`` will automatically insert the
 ``--reference`` option in the git clone command. For example::
 
@@ -102,6 +102,18 @@ from one of these github organizations, ``git autoshare-clone`` will automatical
 will be transformed into::
 
     $ /usr/bin/git clone --reference ~/.cache/git-autoshare/github.com/odoo https://github.com/odoo/odoo
+
+
+git autoshare-submodule-add command
+---------------------------
+Same as ``git autoshare-clone`` command, you can add submodules with a
+reference. for example::
+
+    $ git autoshare-submodule-add https://github.com/odoo/odoo ./odoo
+
+will be transformed into::
+
+    $ /usr/bin/git submodule add --reference ~/.cache/git-autoshare/github.com/odoo https://github.com/odoo/odoo ./odoo
 
 
 git autoshare-prefetch command
@@ -120,7 +132,7 @@ It can also prefetch one single repository, for example::
 Environment variables
 ---------------------
 
-The cache directory is named ``git-autoshare`` where `appdirs <https://pypi.python.org/pypi/appdirs>`_.user_cache_dir is 
+The cache directory is named ``git-autoshare`` where `appdirs <https://pypi.python.org/pypi/appdirs>`_.user_cache_dir is
 (usually ~/.cache/git-autoshare/).
 This location can be configured with the ``GIT_AUTOSHARE_CACHE_DIR`` environment variable.
 
