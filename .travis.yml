@@ -1,32 +1,49 @@
-sudo: false
+dist: xenial  # required for py37
 language: python
-
-python:
-  - "2.7"
-  - "3.4"
-  - "3.5"
-  - "3.6"
-  - "3.7"
 
 install:
   - pip install tox-travis codecov
 
+stages:
+  - name: linting
+  - name: test
+  - name: deploy
+    if: tag IS present
+
+jobs:
+  include:
+    - stage: linting
+      python: 3.6
+      env: TOXENV=pre_commit
+    - stage: linting
+      python: 3.6
+      env: TOXENV=check_readme
+    - stage: test
+      python: 2.7
+    - stage: test
+      python: 3.4
+    - stage: test
+      python: 3.5
+    - stage: test
+      python: 3.6
+    - stage: test
+      python: 3.7
+    - stage: deploy
+      script: echo "Deploy to PyPi"
+      deploy:
+        provider: pypi
+        user: acsbidoul
+        password:
+          secure: "BouxeqkbkozrRzAyOwzVvFzS7d0k4SLG7mOOoU3VUtZ30CiPSClnbOYobIjFrThXaYL+v/QekNTOWUIYAHQHxaHu8E2NGet4+/xDZCys5pXV7PvzzuTPbWlotpRmgmhYRbdX5ba/kumjBwmJcxLcRNl4bf8gSnu+O3GV2cnr7Zo0VGBHBOeNS7kRLAOmjIbVEeXvElM40ij/0oXaXNVhSS2XDJrt3rWKxQcNXLxAo2x6TVNYU25oEGrpMp2R9k8yBLud60/UwHSn48rQqrtNpSzlDF7RBAJ07yi0n/6lhF7bFdyXOxm6rPOuZ+JXPr43z2Lr1/Y9XLRUsYvDE3/0fflSRbUcNANaflmXvOEP0Fre00Z27OC6h1gdlweYJwm7yA8QrXjmlhHvknYDmehe5LtNaL2eVFsNNJJ8ZOp1f77oLTMhHTYoShZ5va4EamZdJR1KrwTo7XtDpVxwagixf4tPOAGJi1aPto5XHqK1Iq0W+Qs4JzPPZmdXa8/C6KSGF1nvunIeNfUkXmmPbQGgD8fof3e9UhW5vc2g2cHyGgImVZUWA/6QRRW7AIYj2RBTEC6uIoqwqZcWNfFB5JkJ4vRlUJ+nJDJeku2EmSgkESWtOPyER7HaJ6xk8j703XSKXwGWMQuoR5LIk8mZ93qDUygBfKKWbJunGE6MYahCD1c="
+        distributions: "sdist bdist_wheel"
+        skip_upload_docs: true
+        on:
+          repo: acsone/git-autoshare
+          branch: master
+          tags: true
+
 script:
   - tox
-  - tox -e check_readme
-  - tox -e pre_commit
 
 after_success:
   - codecov
-
-deploy:
-  provider: pypi
-  user: acsbidoul
-  password:
-    secure: "BouxeqkbkozrRzAyOwzVvFzS7d0k4SLG7mOOoU3VUtZ30CiPSClnbOYobIjFrThXaYL+v/QekNTOWUIYAHQHxaHu8E2NGet4+/xDZCys5pXV7PvzzuTPbWlotpRmgmhYRbdX5ba/kumjBwmJcxLcRNl4bf8gSnu+O3GV2cnr7Zo0VGBHBOeNS7kRLAOmjIbVEeXvElM40ij/0oXaXNVhSS2XDJrt3rWKxQcNXLxAo2x6TVNYU25oEGrpMp2R9k8yBLud60/UwHSn48rQqrtNpSzlDF7RBAJ07yi0n/6lhF7bFdyXOxm6rPOuZ+JXPr43z2Lr1/Y9XLRUsYvDE3/0fflSRbUcNANaflmXvOEP0Fre00Z27OC6h1gdlweYJwm7yA8QrXjmlhHvknYDmehe5LtNaL2eVFsNNJJ8ZOp1f77oLTMhHTYoShZ5va4EamZdJR1KrwTo7XtDpVxwagixf4tPOAGJi1aPto5XHqK1Iq0W+Qs4JzPPZmdXa8/C6KSGF1nvunIeNfUkXmmPbQGgD8fof3e9UhW5vc2g2cHyGgImVZUWA/6QRRW7AIYj2RBTEC6uIoqwqZcWNfFB5JkJ4vRlUJ+nJDJeku2EmSgkESWtOPyER7HaJ6xk8j703XSKXwGWMQuoR5LIk8mZ93qDUygBfKKWbJunGE6MYahCD1c="
-  distributions: "sdist bdist_wheel"
-  skip_upload_docs: true
-  on:
-    repo: acsone/git-autoshare
-    branch: master
-    tags: true
