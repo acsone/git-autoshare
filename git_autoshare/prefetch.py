@@ -8,7 +8,7 @@ import sys
 
 import click
 
-from .core import prefetch_all, prefetch_one, shared_urls
+from .core import autoshare_repositories, autoshare_repository
 
 
 @click.command()
@@ -17,14 +17,13 @@ from .core import prefetch_all, prefetch_one, shared_urls
 def main(repositories, quiet):
     exit = 0
     if not repositories:
-        prefetch_all(quiet)
+        for ar in autoshare_repositories():
+            ar.prefetch(quiet)
     else:
         for repository in repositories:
-            repository == repository.lower()
-            for repo_url, host, org, repo, repo_dir, private in shared_urls():
-                if repository == repo_url:
-                    prefetch_one(host, [org], repo, repo_dir, private, quiet)
-                    break
+            ar = autoshare_repository(repository)
+            if ar:
+                ar.prefetch(quiet)
             else:
                 print(repository, "not found in repos.yml, not prefetched.")
                 exit += 1
