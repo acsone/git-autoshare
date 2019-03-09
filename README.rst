@@ -20,23 +20,15 @@ to save disk space and download time.
 Installation
 ~~~~~~~~~~~~
 
-To install git-autoshare in a fancy way, we recommend using `pipsi <https://github.com/mitsuhiko/pipsi>`_.
+To install git-autoshare in a fancy way, we recommend using `pipx <https://pypi.org/project/pipx-app/>`_.
 
-Pipsi is a powerful tool which allows you to install Python scripts into isolated virtual environments.
+After installing ``pipx`` simply run::
 
-To install pipsi, first run this::
-
-    $ curl https://raw.githubusercontent.com/mitsuhiko/pipsi/master/get-pipsi.py | python
-
-Follow the instructions, you'll have to update your ``PATH``.
-
-Then simply run::
-
-    $ pipsi install git-autoshare
+    $ pipx install git-autoshare
 
 To upgrade git-autoshare at any time::
 
-    $ pipsi upgrade git-autoshare
+    $ pipx upgrade git-autoshare
 
 If you want ``git autoshare-clone`` to be invoked transparently in place of ``git clone``,
 create the following bash script, name it ``git``, and place it in your ``PATH`` before ``/usr/bin/git``:
