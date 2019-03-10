@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# Copyright © 2017 ACSONE SA/NV
+# Copyright © 2017-2019 ACSONE SA/NV
 # License GPLv3 (http://www.gnu.org/licenses/gpl-3.0-standalone.html)
 
 import setuptools
