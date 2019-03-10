@@ -5,6 +5,7 @@
 from __future__ import print_function
 
 import os
+import shutil
 import subprocess
 
 import appdirs
@@ -55,7 +56,10 @@ def autoshare_repository(repository):
             continue
         for repo, repo_data in host_data.items():
             if repo.lower() != giturl_repo:
-                continue
+                if repo == "*":
+                    repo = giturl_repo
+                else:
+                    continue
             if isinstance(repo_data, dict):
                 orgs = repo.get("orgs", [])
                 private = repo.get("private")
@@ -84,6 +88,11 @@ def autoshare_repositories():
     hosts = config()
     for host, repos in hosts.items():
         for repo, repo_data in repos.items():
+            if repo == "*":
+                # TODO list cache directory? in which case the
+                # TODO orgs to fetch must be take from refs/git-autoshare/*
+                # TODO because a repo may not exist in all remotes
+                continue
             if isinstance(repo_data, dict):
                 orgs = repo_data.get("orgs", [])
                 private = repo_data.get("private", False)
@@ -103,7 +112,9 @@ class AutoshareRepository:
         self.repo_dir = os.path.join(cache_dir(), self.host, self.repo)
 
     def prefetch(self, quiet):
+        new_repo_dir = False
         if not os.path.exists(os.path.join(self.repo_dir, "objects")):
+            new_repo_dir = True
             if not os.path.exists(self.repo_dir):
                 os.makedirs(self.repo_dir)
             subprocess.check_call([git_bin(), "init", "--bare"], cwd=self.repo_dir)
@@ -122,4 +133,9 @@ class AutoshareRepository:
         fetch_cmd.append(
             "refs/heads/*:refs/git-autoshare/{org}/heads/*".format(org=self.org)
         )
-        subprocess.check_call(fetch_cmd, cwd=self.repo_dir)
+        try:
+            subprocess.check_call(fetch_cmd, cwd=self.repo_dir)
+        except Exception:
+            if new_repo_dir:
+                shutil.rmtree(self.repo_dir)
+            raise

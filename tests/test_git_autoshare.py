@@ -48,6 +48,23 @@ def test_prefetch_all(config):
     subprocess.check_call(["git", "autoshare-prefetch", "--quiet"])
 
 
+def test_prefetch_all_wildcard(config):
+    config.write_repos_yml(
+        {
+            "github.com": {
+                "*": {"orgs": ["OCA", "acsone"], "private": False},
+                "git-aggregator": ["acsone"],
+            }
+        }
+    )
+    host_dir = config.cache_dir.join("github.com")
+    subprocess.check_call(["git", "autoshare-prefetch"])
+    assert host_dir.check(dir=1)
+    assert host_dir.join("mis-builder").join("objects").check(dir=0)
+    assert host_dir.join("git-aggregator").join("objects").check(dir=1)
+    subprocess.check_call(["git", "autoshare-prefetch", "--quiet"])
+
+
 def test_prefetch_one(config):
     config.write_repos_yml(
         {"github.com": {"mis-builder": ["OCA", "acsone"], "git-aggregator": ["acsone"]}}
@@ -63,6 +80,27 @@ def test_prefetch_one(config):
         ["git", "autoshare-prefetch", "https://github.com/acsone/notfound.git"]
     )
     assert r != 0
+
+
+def test_prefetch_one_wildcard(config):
+    config.write_repos_yml({"github.com": {"*": ["OCA", "acsone"]}})
+    host_dir = config.cache_dir.join("github.com")
+    subprocess.check_call(
+        ["git", "autoshare-prefetch", "https://github.com/acsone/git-aggregator.git"]
+    )
+    assert host_dir.check(dir=1)
+    assert host_dir.join("git-aggregator").join("objects").check(dir=1)
+    assert host_dir.join("mis-builder").check(exists=0)
+
+
+def test_prefetch_one_wildcard_notfound(config):
+    config.write_repos_yml({"example.com": {"*": ["owner1", "owner2"]}})
+    host_dir = config.cache_dir.join("example.com")
+    r = subprocess.call(
+        ["git", "autoshare-prefetch", "https://example.com/owner1/notfound.git"]
+    )
+    assert r != 0
+    assert host_dir.join("notfound").check(exists=0)
 
 
 def test_clone_no_repos_yml(config):
@@ -94,6 +132,28 @@ def test_clone(config):
             "git",
             "autoshare-clone",
             "https://github.com/acsone/git-aggregator.git",
+            str(clone_dir),
+        ]
+    )
+    alternates_file = (
+        clone_dir.join(".git").join("objects").join("info").join("alternates")
+    )
+    cache_objects_dir = (
+        config.cache_dir.join("github.com").join("git-aggregator").join("objects")
+    )
+    assert alternates_file.check(file=1)
+    assert alternates_file.read().strip() == str(cache_objects_dir)
+    assert cache_objects_dir.check(dir=1)
+
+
+def test_clone_wildcard(config):
+    config.write_repos_yml({"github.com": {"*": ["OCA", "acsone"]}})
+    clone_dir = config.work_dir.join("git-aggregator")
+    subprocess.check_call(
+        [
+            "git",
+            "autoshare-clone",
+            "https://github.com/Acsone/Git-Aggregator.git",
             str(clone_dir),
         ]
     )

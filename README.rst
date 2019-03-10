@@ -82,6 +82,23 @@ of git objects. Here is an example::
 
 Note the use of the ``private`` option, used to force fetching using the ssh protocol.
 
+It is also possible to use ``*`` as a wildcard for repository name, to have
+autoshare applied to all repos of some organizations::
+
+    github.com:
+        *:
+            orgs:
+                - odoo
+                - OCA
+                - acsone
+            private: True
+
+.. note::
+
+   In this configuration, ``git-autoshare-prefetch`` without arguments
+   will not fetch any wildcard repo. This could be improved in the future
+   to prefetch repos that are already present in cache.
+
 git autoshare-clone command
 ---------------------------
 
