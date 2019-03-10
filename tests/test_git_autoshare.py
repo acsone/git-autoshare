@@ -108,6 +108,27 @@ def test_clone(config):
     assert cache_objects_dir.check(dir=1)
 
 
+def test_clone_case_insensitive(config):
+    config.write_repos_yml(
+        {"github.com": {"Mis-Builder": ["OCA", "acsone"], "git-aggregator": ["acsone"]}}
+    )
+    clone_dir = config.work_dir.join("mis-builder")
+    # clone with different case than config and missing .git suffix
+    subprocess.check_call(
+        ["git", "autoshare-clone", "https://GitHub.com/Oca/MIS-builder", str(clone_dir)]
+    )
+    alternates_file = (
+        clone_dir.join(".git").join("objects").join("info").join("alternates")
+    )
+    # cache dir preserves case from config
+    cache_objects_dir = (
+        config.cache_dir.join("github.com").join("Mis-Builder").join("objects")
+    )
+    assert alternates_file.check(file=1)
+    assert alternates_file.read().strip() == str(cache_objects_dir)
+    assert cache_objects_dir.check(dir=1)
+
+
 def test_submodule(config):
     config.write_repos_yml(
         {"github.com": {"mis-builder": ["OCA", "acsone"], "git-aggregator": ["acsone"]}}
