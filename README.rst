@@ -141,7 +141,12 @@ Credits
 
 Author:
 
-  * Stéphane Bidoul (`ACSONE <http://acsone.eu/>`_)
+  * Stéphane Bidoul (`ACSONE <https://acsone.eu/>`__)
+
+Contributors
+
+  * Simone Orsi (`Camptocamp <https://camptocamp.com/>`__)
+  * Mykhailo Panarin
 
 Maintainer:
 
