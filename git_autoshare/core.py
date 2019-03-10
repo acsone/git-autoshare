@@ -61,8 +61,8 @@ def autoshare_repository(repository):
                 else:
                     continue
             if isinstance(repo_data, dict):
-                orgs = repo.get("orgs", [])
-                private = repo.get("private")
+                orgs = repo_data.get("orgs", [])
+                private = repo_data.get("private")
             else:
                 orgs = repo_data
                 private = False
