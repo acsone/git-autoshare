@@ -66,7 +66,7 @@ def autoshare_repository(repository):
                 if org.lower() != giturl_owner:
                     continue
                 # match!
-                return AutoshareRepository(host, [org], repo, private)
+                return AutoshareRepository(host, org, repo, private)
     return None
 
 
@@ -90,71 +90,36 @@ def autoshare_repositories():
             else:
                 orgs = repo_data
                 private = False
-            yield AutoshareRepository(host, orgs, repo, private)
-
-
-def git_remotes(repo_dir="."):
-    remotes = subprocess.check_output(
-        [git_bin(), "remote"], cwd=repo_dir, universal_newlines=True
-    )
-    for remote in remotes.split():
-        url = subprocess.check_output(
-            [git_bin(), "remote", "get-url", remote],
-            cwd=repo_dir,
-            universal_newlines=True,
-        )
-        yield remote, url.strip()
+            for org in orgs:
+                yield AutoshareRepository(host, org, repo, private)
 
 
 class AutoshareRepository:
-    def __init__(self, host, orgs, repo, private):
+    def __init__(self, host, org, repo, private):
         self.host = host
-        self.orgs = orgs
+        self.org = org
         self.repo = repo
         self.private = private
         self.repo_dir = os.path.join(cache_dir(), self.host, self.repo)
 
-    def setup_remotes(self, quiet):
+    def prefetch(self, quiet):
         if not os.path.exists(os.path.join(self.repo_dir, "objects")):
             if not os.path.exists(self.repo_dir):
                 os.makedirs(self.repo_dir)
             subprocess.check_call([git_bin(), "init", "--bare"], cwd=self.repo_dir)
-        existing_remotes = dict(git_remotes(self.repo_dir))
-        for org in self.orgs:
-            if self.private:
-                repo_url = "ssh://git@{}/{}/{}.git".format(self.host, org, self.repo)
-            else:
-                repo_url = "https://{}/{}/{}.git".format(self.host, org, self.repo)
-            if org in existing_remotes:
-                existing_repo_url = existing_remotes[org]
-                if repo_url != existing_repo_url:
-                    subprocess.check_call(
-                        [git_bin(), "remote", "set-url", org, repo_url],
-                        cwd=self.repo_dir,
-                    )
-                del existing_remotes[org]
-            else:
-                subprocess.check_call(
-                    [git_bin(), "remote", "add", org, repo_url], cwd=self.repo_dir
-                )
-            if not quiet:
-                print("git-autoshare remote", org, repo_url, "in", self.repo_dir)
-        # remove remaining unneeded remotes
-        for existing_remote in existing_remotes:
-            if not quiet:
-                print(
-                    "git-autoshare removing remote",
-                    existing_remote,
-                    "in",
-                    self.repo_dir,
-                )
-            subprocess.check_call(
-                [git_bin(), "remote", "remove", existing_remote], cwd=self.repo_dir
+        if self.private:
+            repo_url = "ssh://git@{host}/{org}/{repo}.git".format(
+                host=self.host, org=self.org, repo=self.repo
             )
-
-    def prefetch(self, quiet):
-        self.setup_remotes(quiet)
-        fetch_cmd = [git_bin(), "fetch", "-f", "--all", "--tags", "--prune"]
+        else:
+            repo_url = "https://{host}/{org}/{repo}.git".format(
+                host=self.host, org=self.org, repo=self.repo
+            )
+        fetch_cmd = [git_bin(), "fetch", "--force"]
         if quiet:
             fetch_cmd.append("-q")
+        fetch_cmd.append(repo_url)
+        fetch_cmd.append(
+            "refs/heads/*:refs/git-autoshare/{org}/heads/*".format(org=self.org)
+        )
         subprocess.check_call(fetch_cmd, cwd=self.repo_dir)

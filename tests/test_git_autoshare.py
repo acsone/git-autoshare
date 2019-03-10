@@ -172,7 +172,7 @@ def test_find_autoshare_repository(config):
     assert ar
     assert index == 2
     assert ar.host == "github.com"
-    assert ar.orgs == ["acsone"]
+    assert ar.org == "acsone"
     assert not ar.private
     assert ar.repo == "git-aggregator"
     assert ar.repo_dir == os.path.join(
