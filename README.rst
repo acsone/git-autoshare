@@ -86,7 +86,7 @@ It is also possible to use ``*`` as a wildcard for repository name, to have
 autoshare applied to all repos of some organizations::
 
     github.com:
-        *:
+        "*":
             orgs:
                 - odoo
                 - OCA
@@ -97,7 +97,7 @@ autoshare applied to all repos of some organizations::
 
    In this configuration, ``git-autoshare-prefetch`` without arguments
    will not fetch any wildcard repo. This could be improved in the future
-   to prefetch repos that are already present in cache.
+   to refetch repos that are already present in cache.
 
 git autoshare-clone command
 ---------------------------
