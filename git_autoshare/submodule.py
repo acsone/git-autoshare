@@ -9,7 +9,7 @@ import os
 import subprocess
 import sys
 
-from .core import _repo_cached, git_bin, prefetch_one
+from .core import find_autoshare_repository, git_bin
 
 
 def add():
@@ -17,16 +17,12 @@ def add():
     skip = "--reference" in cmd
     if not skip:
         quiet = "-q" in cmd or "--quiet" in cmd
-        found = False
-        found, index, kwargs = _repo_cached(cmd)
-        kwargs.update({"quiet": quiet})
-        if found:
-            if not os.path.exists(kwargs["repo_dir"]):
-                prefetch_one(**kwargs)
+        index, ar = find_autoshare_repository(cmd)
+        if ar:
+            if not os.path.exists(ar.repo_dir):
+                ar.prefetch(quiet)
             if not quiet:
-                print(
-                    "git-autoshare submodule-add added --reference", kwargs["repo_dir"]
-                )
-            cmd = cmd[:index] + ["--reference", kwargs["repo_dir"]] + cmd[index:]
+                print("git-autoshare submodule-add added --reference", ar.repo_dir)
+            cmd = cmd[:index] + ["--reference", ar.repo_dir] + cmd[index:]
     r = subprocess.call(cmd)
     sys.exit(r)

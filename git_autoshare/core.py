@@ -5,9 +5,11 @@
 from __future__ import print_function
 
 import os
+import shutil
 import subprocess
 
 import appdirs
+import giturlparse
 import yaml
 
 APP_NAME = "git-autoshare"
@@ -17,16 +19,24 @@ def cache_dir():
     return os.environ.get("GIT_AUTOSHARE_CACHE_DIR") or appdirs.user_cache_dir(APP_NAME)
 
 
-def load_hosts():
+_config = None
+
+
+def config():
+    global _config
+    if _config is not None:
+        return _config
     config_dir = os.environ.get("GIT_AUTOSHARE_CONFIG_DIR") or appdirs.user_config_dir(
         APP_NAME
     )
     repos_file = os.path.join(config_dir, "repos.yml")
     if os.path.exists(repos_file):
-        return yaml.load(open(repos_file))
+        with open(repos_file) as f:
+            _config = yaml.safe_load(f.read())
     else:
         print("git-autoshare ", repos_file, " not found. No hosts to load.")
-        return {}
+        _config = {}
+    return _config
 
 
 def git_bin():
@@ -34,115 +44,98 @@ def git_bin():
     return os.environ.get("GIT_AUTOSHARE_GIT_BIN") or "/usr/bin/git"
 
 
-def repos():
-    hosts = load_hosts()
+def autoshare_repository(repository):
+    giturl = giturlparse.parse(repository)
+    if not giturl.valid:
+        return None
+    giturl_host = giturl.host.lower()
+    giturl_repo = giturl.repo.lower()
+    giturl_owner = giturl.owner.lower()
+    for host, host_data in config().items():
+        if host.lower() != giturl_host:
+            continue
+        for repo, repo_data in host_data.items():
+            if repo.lower() != giturl_repo:
+                if repo == "*":
+                    repo = giturl_repo
+                else:
+                    continue
+            if isinstance(repo_data, dict):
+                orgs = repo_data.get("orgs", [])
+                private = repo_data.get("private")
+            else:
+                orgs = repo_data
+                private = False
+            for org in orgs:
+                if org.lower() != giturl_owner:
+                    continue
+                # match!
+                return AutoshareRepository(host, org, repo, private)
+    return None
+
+
+def find_autoshare_repository(args):
+    for index, arg in enumerate(args):
+        if arg.startswith("-"):
+            continue
+        ar = autoshare_repository(arg)
+        if ar:
+            return index, ar
+    return -1, None
+
+
+def autoshare_repositories():
+    hosts = config()
     for host, repos in hosts.items():
         for repo, repo_data in repos.items():
+            if repo == "*":
+                # TODO list cache directory? in which case the
+                # TODO orgs to fetch must be take from refs/git-autoshare/*
+                # TODO because a repo may not exist in all remotes
+                continue
             if isinstance(repo_data, dict):
                 orgs = repo_data.get("orgs", [])
                 private = repo_data.get("private", False)
             else:
                 orgs = repo_data
                 private = False
-            repo_dir = os.path.join(cache_dir(), host, repo)
-            orgs = [org.lower() for org in orgs]
-            yield host, orgs, repo.lower(), repo_dir, private
+            for org in orgs:
+                yield AutoshareRepository(host, org, repo, private)
 
 
-def shared_urls():
-    for host, orgs, repo, repo_dir, private in repos():
-        for org in orgs:
-            for suffix in ("", ".git"):
-                if not private:
-                    repo_url = "https://{}/{}/{}{}".format(host, org, repo, suffix)
-                    yield repo_url, host, org, repo, repo_dir, private
-                    repo_url = "https://git@{}/{}/{}{}".format(host, org, repo, suffix)
-                    yield repo_url, host, org, repo, repo_dir, private
-                    repo_url = "http://{}/{}/{}{}".format(host, org, repo, suffix)
-                    yield repo_url, host, org, repo, repo_dir, private
-                repo_url = "ssh://git@{}/{}/{}{}".format(host, org, repo, suffix)
-                yield repo_url, host, org, repo, repo_dir, private
-                repo_url = "git@{}:{}/{}{}".format(host, org, repo, suffix)
-                yield repo_url, host, org, repo, repo_dir, private
+class AutoshareRepository:
+    def __init__(self, host, org, repo, private):
+        self.host = host
+        self.org = org
+        self.repo = repo
+        self.private = private
+        self.repo_dir = os.path.join(cache_dir(), self.host, self.repo)
 
-
-def _repo_cached(cmd):
-    found = False
-    for repo_url, host, org, repo, repo_dir, private in shared_urls():
-        for index, arg in enumerate(cmd):
-            if arg.startswith("-"):
-                continue
-            if arg.lower() == repo_url:
-                found = True
-                break
-        if found:
-            break
-    if found:
-        return (
-            found,
-            index,
-            {
-                "host": host,
-                "orgs": [org],
-                "repo": repo,
-                "repo_dir": repo_dir,
-                "private": private,
-            },
-        )
-    else:
-        return False, 0, {}
-
-
-def git_remotes(repo_dir="."):
-    remotes = subprocess.check_output(
-        [git_bin(), "remote"], cwd=repo_dir, universal_newlines=True
-    )
-    for remote in remotes.split():
-        url = subprocess.check_output(
-            [git_bin(), "remote", "get-url", remote],
-            cwd=repo_dir,
-            universal_newlines=True,
-        )
-        yield remote, url.strip()
-
-
-def prefetch_one(host, orgs, repo, repo_dir, private, quiet):
-    if not os.path.exists(os.path.join(repo_dir, "objects")):
-        if not os.path.exists(repo_dir):
-            os.makedirs(repo_dir)
-        subprocess.check_call([git_bin(), "init", "--bare"], cwd=repo_dir)
-    existing_remotes = dict(git_remotes(repo_dir))
-    for org in orgs:
-        if private:
-            repo_url = "ssh://git@{}/{}/{}.git".format(host, org, repo)
-        else:
-            repo_url = "https://{}/{}/{}.git".format(host, org, repo)
-        if org in existing_remotes:
-            existing_repo_url = existing_remotes[org]
-            if repo_url != existing_repo_url:
-                subprocess.check_call(
-                    [git_bin(), "remote", "set-url", org, repo_url], cwd=repo_dir
-                )
-            del existing_remotes[org]
-        else:
-            subprocess.check_call(
-                [git_bin(), "remote", "add", org, repo_url], cwd=repo_dir
+    def prefetch(self, quiet):
+        new_repo_dir = False
+        if not os.path.exists(os.path.join(self.repo_dir, "objects")):
+            new_repo_dir = True
+            if not os.path.exists(self.repo_dir):
+                os.makedirs(self.repo_dir)
+            subprocess.check_call([git_bin(), "init", "--bare"], cwd=self.repo_dir)
+        if self.private:
+            repo_url = "ssh://git@{host}/{org}/{repo}.git".format(
+                host=self.host, org=self.org, repo=self.repo
             )
-        if not quiet:
-            print("git-autoshare remote", org, repo_url, "in", repo_dir)
-    # remove remaining unneeded remotes
-    for existing_remote in existing_remotes:
-        if not quiet:
-            print("git-autoshare removing remote", existing_remote, "in", repo_dir)
-        subprocess.check_call(
-            [git_bin(), "remote", "remove", existing_remote], cwd=repo_dir
+        else:
+            repo_url = "https://{host}/{org}/{repo}.git".format(
+                host=self.host, org=self.org, repo=self.repo
+            )
+        fetch_cmd = [git_bin(), "fetch", "--force"]
+        if quiet:
+            fetch_cmd.append("-q")
+        fetch_cmd.append(repo_url)
+        fetch_cmd.append(
+            "refs/heads/*:refs/git-autoshare/{org}/heads/*".format(org=self.org)
         )
-    fetch_cmd = [git_bin(), "fetch", "-f", "--all", "--tags", "--prune"]
-    if quiet:
-        fetch_cmd.append("-q")
-    subprocess.check_call(fetch_cmd, cwd=repo_dir)
-
-
-def prefetch_all(quiet):
-    for host, orgs, repo, repo_dir, private in repos():
-        prefetch_one(host, orgs, repo, repo_dir, private, quiet)
+        try:
+            subprocess.check_call(fetch_cmd, cwd=self.repo_dir)
+        except Exception:
+            if new_repo_dir:
+                shutil.rmtree(self.repo_dir)
+            raise
