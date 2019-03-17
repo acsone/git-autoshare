@@ -32,7 +32,7 @@ def config():
     repos_file = os.path.join(config_dir, "repos.yml")
     if os.path.exists(repos_file):
         with open(repos_file) as f:
-            _config = yaml.load(f.read())
+            _config = yaml.safe_load(f.read())
     else:
         print("git-autoshare ", repos_file, " not found. No hosts to load.")
         _config = {}

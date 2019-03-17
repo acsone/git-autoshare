@@ -5,9 +5,10 @@ Changes
 .. ----------
 .. -
 
-1.0.0b2 (2019-03-09)
+1.0.0b2 (2019-03-17)
 --------------------
 - add submodule-add command
+- use safe_load to parse configuration
 
 1.0.0b1 (2018-01-07)
 --------------------
