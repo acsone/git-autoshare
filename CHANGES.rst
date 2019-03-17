@@ -9,6 +9,8 @@ Changes
 --------------------
 - add submodule-add command
 - use safe_load to parse configuration
+- allow wildcards in configuration
+- internal refactoring
 
 1.0.0b1 (2018-01-07)
 --------------------
