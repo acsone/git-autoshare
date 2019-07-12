@@ -4,7 +4,6 @@
 
 from __future__ import print_function
 
-import os
 import subprocess
 import sys
 
@@ -20,8 +19,7 @@ def main():
         quiet = "-q" in cmd or "--quiet" in cmd
         index, ar = find_autoshare_repository(cmd)
         if ar:
-            if not os.path.exists(ar.repo_dir):
-                ar.prefetch(quiet)
+            ar.prefetch(quiet)
             if not quiet:
                 print("git-autoshare clone added --reference", ar.repo_dir)
             cmd = cmd[:index] + ["--reference", ar.repo_dir] + cmd[index:]

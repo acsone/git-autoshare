@@ -5,6 +5,11 @@ Changes
 .. ----------
 .. -
 
+1.0.0b3 (unreleased)
+--------------------
+- always prefetch cache before cloning, to make sure the cache is updated
+  regularly
+
 1.0.0b2 (2019-03-17)
 --------------------
 - add submodule-add command
