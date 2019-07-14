@@ -5,7 +5,11 @@ Changes
 .. ----------
 .. -
 
-1.0.0b3 (unreleased)
+1.0.0b4 (2019-07-14)
+--------------------
+- support ssh:// urls, remove dependency on giturlparse
+
+1.0.0b3 (2019-07-13)
 --------------------
 - always prefetch cache before cloning, to make sure the cache is updated
   regularly
