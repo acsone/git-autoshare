@@ -16,7 +16,7 @@ _regexps = [
 
 
 class GitUrlBase(object):
-    __slots__ = ["valide", "host", "owner", "repo"]
+    __slots__ = ["valid", "host", "owner", "repo"]
 
     def __init__(self, valid, host, owner, repo):
         self.valid = valid
@@ -26,11 +26,15 @@ class GitUrlBase(object):
 
 
 class GitUrl(GitUrlBase):
+    __slots__ = []
+
     def __init__(self, host, owner, repo):
         super(GitUrl, self).__init__(True, host, owner, repo)
 
 
 class InvalidGitUrl(GitUrlBase):
+    __slots__ = []
+
     def __init__(self):
         super(InvalidGitUrl, self).__init__(False, None, None, None)
 
