@@ -9,8 +9,9 @@ import shutil
 import subprocess
 
 import appdirs
-import giturlparse
 import yaml
+
+from . import giturlparse
 
 APP_NAME = "git-autoshare"
 
