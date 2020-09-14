@@ -67,11 +67,15 @@ def autoshare_repository(repository):
             else:
                 orgs = repo_data
                 private = False
+
+            valid_orgs = []
             for org in orgs:
                 if org.lower() != giturl_owner:
                     continue
+                valid_orgs.append(org)
+            if valid_orgs:
                 # match!
-                return AutoshareRepository(host, org, repo, private)
+                return AutoshareRepository(host, valid_orgs, repo, private)
     return None
 
 
@@ -100,14 +104,13 @@ def autoshare_repositories():
             else:
                 orgs = repo_data
                 private = False
-            for org in orgs:
-                yield AutoshareRepository(host, org, repo, private)
 
+            yield AutoshareRepository(host, orgs, repo, private)
 
 class AutoshareRepository:
-    def __init__(self, host, org, repo, private):
+    def __init__(self, host, orgs, repo, private):
         self.host = host
-        self.org = org
+        self.orgs = orgs
         self.repo = repo
         self.private = private
         self.repo_dir = os.path.join(cache_dir(), self.host, self.repo)
@@ -119,24 +122,26 @@ class AutoshareRepository:
             if not os.path.exists(self.repo_dir):
                 os.makedirs(self.repo_dir)
             subprocess.check_call([git_bin(), "init", "--bare"], cwd=self.repo_dir)
-        if self.private:
-            repo_url = "ssh://git@{host}/{org}/{repo}.git".format(
-                host=self.host, org=self.org, repo=self.repo
+
+        for org in self.orgs:
+            if self.private:
+                repo_url = "ssh://git@{host}/{org}/{repo}.git".format(
+                    host=self.host, org=org, repo=self.repo
+                )
+            else:
+                repo_url = "https://{host}/{org}/{repo}.git".format(
+                    host=self.host, org=org, repo=self.repo
+                )
+            fetch_cmd = [git_bin(), "fetch", "--force"]
+            if quiet:
+                fetch_cmd.append("-q")
+            fetch_cmd.append(repo_url)
+            fetch_cmd.append(
+                "refs/heads/*:refs/git-autoshare/{org}/heads/*".format(org=org)
             )
-        else:
-            repo_url = "https://{host}/{org}/{repo}.git".format(
-                host=self.host, org=self.org, repo=self.repo
-            )
-        fetch_cmd = [git_bin(), "fetch", "--force"]
-        if quiet:
-            fetch_cmd.append("-q")
-        fetch_cmd.append(repo_url)
-        fetch_cmd.append(
-            "refs/heads/*:refs/git-autoshare/{org}/heads/*".format(org=self.org)
-        )
-        try:
-            subprocess.check_call(fetch_cmd, cwd=self.repo_dir)
-        except Exception:
-            if new_repo_dir:
-                shutil.rmtree(self.repo_dir)
-            raise
+            try:
+                subprocess.check_call(fetch_cmd, cwd=self.repo_dir)
+            except Exception:
+                if new_repo_dir:
+                    shutil.rmtree(self.repo_dir)
+                raise

@@ -254,12 +254,10 @@ def test_find_autoshare_repository(config):
     assert ar
     assert index == 2
     assert ar.host == "github.com"
-    assert ar.org == "acsone"
+    assert "acsone" in ar.orgs
     assert not ar.private
     assert ar.repo == "git-aggregator"
-    assert ar.repo_dir == os.path.join(
-        str(config.cache_dir), "github.com/git-aggregator"
-    )
+    assert ar.repo_dir == os.path.join(str(config.cache_dir), ar.host, ar.repo)
 
     cmd = [git_bin(), "clone", "https://github.com/acsone/git-autoshare.git"]
     index, ar = find_autoshare_repository(cmd)
