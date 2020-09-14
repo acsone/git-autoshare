@@ -93,11 +93,6 @@ autoshare applied to all repos of some organizations::
                 - acsone
             private: True
 
-.. note::
-
-   In this configuration, ``git-autoshare-prefetch`` without arguments
-   will not fetch any wildcard repo. This could be improved in the future
-   to refetch repos that are already present in cache.
 
 git autoshare-clone command
 ---------------------------

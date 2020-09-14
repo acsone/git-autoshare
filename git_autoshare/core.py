@@ -89,15 +89,47 @@ def find_autoshare_repository(args):
     return -1, None
 
 
+def _get_all_declared_repos(host):
+    """ Get all declared repos from config for a single host
+    """
+    return set(config()[host].keys()).difference(["*"])
+
+
+def _get_cached_and_undeclared_repositories(host):
+    """ Returns only cached repositories and undeclared in configuration
+    """
+    host_dir = os.path.join(cache_dir(), host)
+    # If folder doesn't exist, autoshare-clone or submodules were not used yet
+    if os.path.isdir(host_dir):
+        cached_repos = os.listdir(host_dir)  # From cache only
+        declared_repos = _get_all_declared_repos(host)  # From repos only
+        # Return the difference
+        return set(cached_repos).difference(declared_repos)
+    return []
+
+
+def find_wildcarded_repositories(host, orgs, private):
+    """ Find undeclared repositories from a single wildcard configuration
+    """
+    for repo in _get_cached_and_undeclared_repositories(host):
+        print("Found a cached repository '{}'".format(repo))
+        orgs_path = os.path.join(cache_dir(), host, repo, "refs", "git-autoshare")
+        # If a cached org's folder doesn't exist, clone has not been called yet
+        # We don't process it
+        # And lowercase is used to avoid differences by false negative
+        if os.path.exists(orgs_path):
+            existing_orgs = [o.lower() for o in os.listdir(orgs_path)]
+            # But we keep the original org value for further process
+            valid_orgs = [org for org in orgs if org.lower() in existing_orgs]
+            if valid_orgs:
+                print("Processing '{}' for orgs {}".format(repo, valid_orgs))
+                yield AutoshareRepository(host, valid_orgs, repo, private)
+
+
 def autoshare_repositories():
     hosts = config()
     for host, repos in hosts.items():
         for repo, repo_data in repos.items():
-            if repo == "*":
-                # TODO list cache directory? in which case the
-                # TODO orgs to fetch must be take from refs/git-autoshare/*
-                # TODO because a repo may not exist in all remotes
-                continue
             if isinstance(repo_data, dict):
                 orgs = repo_data.get("orgs", [])
                 private = repo_data.get("private", False)
@@ -105,7 +137,17 @@ def autoshare_repositories():
                 orgs = repo_data
                 private = False
 
-            yield AutoshareRepository(host, orgs, repo, private)
+            if repo == "*":
+                print(
+                    "Global prefetch started for host {} and orgs {}...".format(
+                        host, orgs
+                    )
+                )
+                for ar in find_wildcarded_repositories(host, orgs, private):
+                    yield ar
+            else:
+                yield AutoshareRepository(host, orgs, repo, private)
+
 
 class AutoshareRepository:
     def __init__(self, host, orgs, repo, private):
@@ -140,8 +182,18 @@ class AutoshareRepository:
                 "refs/heads/*:refs/git-autoshare/{org}/heads/*".format(org=org)
             )
             try:
+                print("Prefetching {}/{}/{}".format(self.host, org, self.repo))
                 subprocess.check_call(fetch_cmd, cwd=self.repo_dir)
             except Exception:
                 if new_repo_dir:
                     shutil.rmtree(self.repo_dir)
                 raise
+
+    def __eq__(self, other):
+        if isinstance(other, AutoshareRepository):
+            return (
+                self.repo_dir == other.repo_dir
+                and self.orgs == other.orgs
+                and self.private == other.private
+            )
+        return False

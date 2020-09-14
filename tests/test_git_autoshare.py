@@ -8,7 +8,11 @@ import subprocess
 import pytest
 import yaml
 
-from git_autoshare.core import find_autoshare_repository, git_bin
+from git_autoshare.core import (
+    find_autoshare_repository,
+    find_wildcarded_repositories,
+    git_bin,
+)
 
 
 class Config:
@@ -273,3 +277,44 @@ def test_find_autoshare_repository(config):
     index, ar = find_autoshare_repository(cmd)
     assert index == -1
     assert ar is None
+
+
+def test_find_wildcarded_repositories(config):
+    """
+        This test insure that 'find_wildcarded_repositories' works as expected,
+        and highly dependently to 'find_autoshare_repository'.
+
+        Result order is independant to a well behavior.
+
+    """
+    host = "github.com"
+    orgs = ["OCA", "acsone"]
+    private = False
+    config.write_repos_yml({host: {"*": {"orgs": orgs, "private": private}}})
+    oracle = set()
+    index, mis_builder_ar = find_autoshare_repository(
+        [
+            "git",
+            "autoshare-clone",
+            "https://GitHub.com/Oca/MIS-builder.git",
+            str(config.work_dir.join("mis-builder")),
+        ]
+    )
+    if mis_builder_ar:
+        mis_builder_ar.prefetch(False)
+        oracle.add(mis_builder_ar)
+
+    index, git_aggregator_ar = find_autoshare_repository(
+        [
+            "git",
+            "autoshare-clone",
+            "https://github.com/acsone/git-aggregator.git",
+            str(config.work_dir.join("git-aggregator")),
+        ]
+    )
+    if git_aggregator_ar:
+        git_aggregator_ar.prefetch(False)
+        oracle.add(git_aggregator_ar)
+
+    wildcarded_ars = set(find_wildcarded_repositories(host, orgs, private))
+    assert oracle == wildcarded_ars

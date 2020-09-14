@@ -1,9 +1,9 @@
 Changes
 ~~~~~~~
 
-.. Future (?)
-.. ----------
-.. -
+latest  (to release)
+--------------------
+- allow wildcards in prefetch
 
 1.0.0b4 (2019-07-14)
 --------------------
