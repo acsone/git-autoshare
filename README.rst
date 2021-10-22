@@ -30,19 +30,8 @@ To upgrade git-autoshare at any time::
 
     $ pipx upgrade git-autoshare
 
-If you want ``git autoshare-clone`` to be invoked transparently in place of ``git clone``,
-create the following bash script, name it ``git``, and place it in your ``PATH`` before ``/usr/bin/git``:
-
-  .. code:: bash
-
-    #!/bin/bash
-    if [ "$1" == "clone" ]
-    then
-        shift
-        /usr/bin/git autoshare-clone "$@"
-    else
-        /usr/bin/git "$@"
-    fi
+This will also install a simple script to transparently replace your calls to ``git clone`` with calls to
+``git autoshare-clone``. To enable it, export `GIT_AUTOSHARE=1` in your shell.
 
 Usage
 ~~~~~
