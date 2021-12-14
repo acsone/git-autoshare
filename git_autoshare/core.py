@@ -55,24 +55,39 @@ def autoshare_repository(repository):
     for host, host_data in config().items():
         if host.lower() != giturl_host:
             continue
-        for repo, repo_data in host_data.items():
-            if repo.lower() != giturl_repo:
-                if repo == "*":
-                    repo = giturl_repo
-                else:
-                    continue
-            if isinstance(repo_data, dict):
-                orgs = repo_data.get("orgs", [])
-                private = repo_data.get("private")
-            else:
-                orgs = repo_data
-                private = False
-            for org in orgs:
+            repo, repo_data = _get_repo_data(repository, giturl_repo, host_data)
+            if not repo:
+                continue
+            for org in repo_data["orgs"]:
                 if org.lower() != giturl_owner:
                     continue
                 # match!
-                return AutoshareRepository(host, org, repo, private)
+                return AutoshareRepository(host, org, repo, repo_data["private"])
     return None
+
+
+def _get_repo_data(repository, giturl_repo, host_data):
+    if isinstance(host_data.get(repository), dict):
+        # A specific config for this repo exists
+        repo_data = host_data[repository]
+        repo_data.setdefault("orgs", [])
+        repo_data.setdefault("private", False)
+        return giturl_repo, repo_data
+
+    for repo, repo_data in host_data.items():
+        if repo.lower() != giturl_repo:
+            if repo == "*":
+                repo = giturl_repo
+            else:
+                continue
+        if isinstance(repo_data, dict):
+            repo_data.setdefault("orgs", [])
+            repo_data.setdefault("private", False)
+            return repo, repo_data
+        else:
+            return repo, {"orgs": repo_data, "private": False}
+
+    return "", {}
 
 
 def find_autoshare_repository(args):
