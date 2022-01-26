@@ -90,14 +90,12 @@ def find_autoshare_repository(args):
 
 
 def _get_all_declared_repos(host):
-    """ Get all declared repos from config for a single host
-    """
+    """Get all declared repos from config for a single host"""
     return set(config()[host].keys()).difference(["*"])
 
 
 def _get_cached_and_undeclared_repositories(host):
-    """ Returns only cached repositories and undeclared in configuration
-    """
+    """Returns only cached repositories and undeclared in configuration"""
     host_dir = os.path.join(cache_dir(), host)
     # If folder doesn't exist, autoshare-clone or submodules were not used yet
     if os.path.isdir(host_dir):
@@ -109,8 +107,7 @@ def _get_cached_and_undeclared_repositories(host):
 
 
 def find_wildcarded_repositories(host, orgs, private):
-    """ Find undeclared repositories from a single wildcard configuration
-    """
+    """Find undeclared repositories from a single wildcard configuration"""
     for repo in _get_cached_and_undeclared_repositories(host):
         print("Found a cached repository '{}'".format(repo))
         orgs_path = os.path.join(cache_dir(), host, repo, "refs", "git-autoshare")

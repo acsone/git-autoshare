@@ -281,10 +281,10 @@ def test_find_autoshare_repository(config):
 
 def test_find_wildcarded_repositories(config):
     """
-        This test insure that 'find_wildcarded_repositories' works as expected,
-        and highly dependently to 'find_autoshare_repository'.
+    This test insure that 'find_wildcarded_repositories' works as expected,
+    and highly dependently to 'find_autoshare_repository'.
 
-        Result order is independant to a well behavior.
+    Result order is independant to a well behavior.
 
     """
     host = "github.com"
