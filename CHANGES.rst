@@ -1,9 +1,9 @@
 Changes
 ~~~~~~~
 
-latest  (to release)
---------------------
-- allow wildcards in prefetch
+1.0.0b5  (2022-01-26)
+---------------------
+- support organization wildcards in git-autoshare-prefetch
 
 1.0.0b4 (2019-07-14)
 --------------------

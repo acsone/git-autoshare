@@ -159,6 +159,7 @@ Contributors
 
   * Simone Orsi (`Camptocamp <https://camptocamp.com/>`__)
   * Mykhailo Panarin
+  * Stéphane Mangin
 
 Maintainer:
 
