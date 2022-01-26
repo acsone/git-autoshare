@@ -6,8 +6,9 @@ git-autoshare
    :alt: License: GPL-3
 .. image:: https://badge.fury.io/py/git-autoshare.svg
     :target: http://badge.fury.io/py/git-autoshare
-.. image:: https://travis-ci.org/acsone/git-autoshare.svg?branch=master
-   :target: https://travis-ci.org/acsone/git-autoshare
+.. image:: https://results.pre-commit.ci/badge/github/acsone/git-autoshare/master.svg
+   :target: https://results.pre-commit.ci/latest/github/acsone/git-autoshare/master
+   :alt: pre-commit.ci status
 .. image:: https://codecov.io/gh/acsone/git-autoshare/branch/master/graph/badge.svg
    :target: https://codecov.io/gh/acsone/git-autoshare
 
