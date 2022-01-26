@@ -4,6 +4,7 @@ Changes
 1.0.0b5  (2022-01-26)
 ---------------------
 - support organization wildcards in git-autoshare-prefetch
+- support python >= 3.6 only (no code change yet, only stop testing)
 
 1.0.0b4 (2019-07-14)
 --------------------
