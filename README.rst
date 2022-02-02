@@ -152,6 +152,9 @@ This location can be configured with the ``GIT_AUTOSHARE_CONFIG_DIR`` environmen
 By default ``git-autoshare`` invokes ``git`` as ``/usr/bin/git``. This can be configured with the ``GIT_AUTOSHARE_GIT_BIN``
 environment variable.
 
+An environment variable is used when launching tests (to avoid configuration retrieval issue) : ``GIT_AUTOSHARE_MODE``. Which takes only one value: 'test'.
+
+
 Credits
 ~~~~~~~
 

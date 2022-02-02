@@ -24,6 +24,7 @@ class Config:
         subprocess.call(["git", "init", str(self.repo_dir)])
         os.environ["GIT_AUTOSHARE_CACHE_DIR"] = str(self.cache_dir)
         os.environ["GIT_AUTOSHARE_CONFIG_DIR"] = str(self.config_dir)
+        os.environ["GIT_AUTOSHARE_MODE"] = "test"
 
     def write_repos_yml(self, d):
         with self.config_dir.join("repos.yml").open("w") as f:
