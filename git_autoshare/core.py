@@ -186,6 +186,9 @@ class AutoshareRepository:
                     shutil.rmtree(self.repo_dir)
                 raise
 
+    def __hash__(self):
+        return hash(self.repo_dir + str(self.private) + str(self.orgs))
+
     def __eq__(self, other):
         if isinstance(other, AutoshareRepository):
             return (
