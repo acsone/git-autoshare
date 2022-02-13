@@ -25,7 +25,8 @@ _config = None
 
 def config():
     global _config
-    if _config is not None:
+    test_mode = os.environ["GIT_AUTOSHARE_MODE"] == "test"
+    if not test_mode and _config is not None:
         return _config
     config_dir = os.environ.get("GIT_AUTOSHARE_CONFIG_DIR") or appdirs.user_config_dir(
         APP_NAME
@@ -96,14 +97,15 @@ def _get_all_declared_repos(host):
 
 def _get_cached_and_undeclared_repositories(host):
     """Returns only cached repositories and undeclared in configuration"""
+    cached_repos = set()
     host_dir = os.path.join(cache_dir(), host)
     # If folder doesn't exist, autoshare-clone or submodules were not used yet
     if os.path.isdir(host_dir):
-        cached_repos = os.listdir(host_dir)  # From cache only
+        cached_repos = set(os.listdir(host_dir))  # From cache only
         declared_repos = _get_all_declared_repos(host)  # From repos only
         # Return the difference
-        return set(cached_repos).difference(declared_repos)
-    return []
+        return cached_repos.difference(declared_repos)
+    return cached_repos
 
 
 def find_wildcarded_repositories(host, orgs, private):
@@ -185,6 +187,9 @@ class AutoshareRepository:
                 if new_repo_dir:
                     shutil.rmtree(self.repo_dir)
                 raise
+
+    def __hash__(self):
+        return hash(self.repo_dir + str(self.private) + str(self.orgs))
 
     def __eq__(self, other):
         if isinstance(other, AutoshareRepository):
