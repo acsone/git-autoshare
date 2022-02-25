@@ -25,7 +25,7 @@ _config = None
 
 def config():
     global _config
-    test_mode = os.environ["GIT_AUTOSHARE_MODE"] == "test"
+    test_mode = os.environ.get("GIT_AUTOSHARE_MODE") == "test"
     if not test_mode and _config is not None:
         return _config
     config_dir = os.environ.get("GIT_AUTOSHARE_CONFIG_DIR") or appdirs.user_config_dir(
