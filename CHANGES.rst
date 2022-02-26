@@ -1,7 +1,11 @@
 Changes
 ~~~~~~~
 
-1.0.0b5  (2022-01-26)
+1.0.0b6 (2022-02-26)
+---------------------
+- fix a regression where the GIT_AUTOSHARE_MODE environment variable became necessary
+
+1.0.0b5 (2022-01-26)
 ---------------------
 - support organization wildcards in git-autoshare-prefetch
 - support python >= 3.6 only (no code change yet, only stop testing)
