@@ -1,8 +1,6 @@
-# -*- coding: utf-8 -*-
 # Copyright © 2017-2019 ACSONE SA/NV
 # License GPLv3 (http://www.gnu.org/licenses/gpl-3.0-standalone.html)
 
-from __future__ import print_function
 
 import os
 import shutil
@@ -142,8 +140,7 @@ def autoshare_repositories():
                         host, orgs
                     )
                 )
-                for ar in find_wildcarded_repositories(host, orgs, private):
-                    yield ar
+                yield from find_wildcarded_repositories(host, orgs, private)
             else:
                 yield AutoshareRepository(host, orgs, repo, private)
 
