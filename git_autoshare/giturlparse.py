@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright © 2019 ACSONE SA/NV
 # License GPLv3 (http://www.gnu.org/licenses/gpl-3.0-standalone.html)
 
@@ -19,7 +18,7 @@ _regexps = [
 ]
 
 
-class GitUrlBase(object):
+class GitUrlBase:
     __slots__ = ["valid", "host", "owner", "repo"]
 
     def __init__(self, valid, host, owner, repo):
@@ -33,14 +32,14 @@ class GitUrl(GitUrlBase):
     __slots__ = []
 
     def __init__(self, host, owner, repo):
-        super(GitUrl, self).__init__(True, host, owner, repo)
+        super().__init__(True, host, owner, repo)
 
 
 class InvalidGitUrl(GitUrlBase):
     __slots__ = []
 
     def __init__(self):
-        super(InvalidGitUrl, self).__init__(False, None, None, None)
+        super().__init__(False, None, None, None)
 
 
 def parse(url):
