@@ -31,4 +31,5 @@ setuptools.setup(
             "git-autoshare-submodule-add=git_autoshare.submodule:add",
         ]
     },
+    scripts=["scripts/git"]
 )

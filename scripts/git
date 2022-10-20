@@ -1,0 +1,8 @@
+#!/bin/bash
+if [[ "$GIT_AUTOSHARE" == "1" && "$1" == "clone" ]]
+then
+    shift
+    /usr/bin/git autoshare-clone "$@"
+else
+    /usr/bin/git "$@"
+fi
