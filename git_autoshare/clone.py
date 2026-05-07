@@ -4,10 +4,13 @@
 
 import subprocess
 import sys
+import time
 
 from .core import enable_gevent, find_autoshare_repository, git_bin
 from .submodule import iter_submodules
 from .submodule import update as submodule_update
+
+WATCHER_INTERVAL = 30  # seconds between "still running" reports
 
 
 def main():
@@ -42,23 +45,79 @@ def _init_submodules(target, quiet, parallel=None):
         return 0
     if parallel:
         if not enable_gevent():
-            print("git-autoshare: gevent not available, falling back to sequential submodule update")
+            print(
+                "git-autoshare: gevent not available, "
+                "falling back to sequential submodule update"
+            )
             parallel = False
     elif parallel is None:
         parallel = enable_gevent()
     if parallel:
-        from gevent.pool import Pool
-
-        pool = Pool(size=min(len(submodules), 10))
-        results = pool.map(
-            lambda pu: submodule_update(target, pu[0], pu[1], quiet), submodules
-        )
-        return next((r for r in results if r != 0), 0)
+        return _init_submodules_parallel(target, quiet, submodules)
     for path, url in submodules:
         r = submodule_update(target, path, url, quiet)
         if r != 0:
             return r
     return 0
+
+
+def _init_submodules_parallel(target, quiet, submodules):
+    """Run submodule updates concurrently via gevent.
+
+    Logs `start`/`done`/`FAIL` markers per submodule and a periodic
+    `still running` report so the user can tell which submodule is the
+    long pole when many clones are in flight.
+    """
+    import gevent
+    from gevent.pool import Pool
+
+    total = len(submodules)
+    in_flight = {}  # path -> start time (monotonic)
+    completed = 0
+
+    print(f"git-autoshare: updating {total} submodules in parallel")
+
+    def run(idx, path, url):
+        nonlocal completed
+        in_flight[path] = time.monotonic()
+        print("[{}/{}] start  {}".format(idx + 1, total, path), flush=True)
+        r = submodule_update(target, path, url, quiet)
+        elapsed = time.monotonic() - in_flight.pop(path)
+        completed += 1
+        tag = "done " if r == 0 else "FAIL "
+        print(
+            "[{}/{}] {} {} ({:.1f}s)".format(completed, total, tag, path, elapsed),
+            flush=True,
+        )
+        return r
+
+    def watch():
+        while True:
+            gevent.sleep(WATCHER_INTERVAL)
+            if not in_flight:
+                return
+            now = time.monotonic()
+            lines = [
+                "  {} ({:.0f}s)".format(p, now - t)
+                for p, t in sorted(in_flight.items())
+            ]
+            print(
+                "git-autoshare: still running ({}/{}):\n{}".format(
+                    len(in_flight), total, "\n".join(lines)
+                ),
+                flush=True,
+            )
+
+    watcher = gevent.spawn(watch)
+    pool = Pool(size=min(total, 10))
+    try:
+        results = pool.map(
+            lambda i_pu: run(i_pu[0], i_pu[1][0], i_pu[1][1]),
+            list(enumerate(submodules)),
+        )
+    finally:
+        watcher.kill()
+    return next((r for r in results if r != 0), 0)
 
 
 def get_clone_target_dir_from_args(args):

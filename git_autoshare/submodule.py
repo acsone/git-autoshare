@@ -40,8 +40,7 @@ def update(repo_dir, path, url, quiet):
         cmd.append("--quiet")
     _, ar = find_autoshare_repository([url])
     if ar:
-        if not (Path(ar.repo_dir) / "objects").exists():
-            ar.prefetch(quiet)
+        ar.ensure_cache(quiet)
         cmd += ["--reference", ar.repo_dir]
     cmd.append(path)
     return subprocess.call(cmd, cwd=repo_dir)
@@ -54,8 +53,7 @@ def add():
         quiet = "-q" in cmd or "--quiet" in cmd
         index, ar = find_autoshare_repository(cmd)
         if ar:
-            if not Path(ar.repo_dir).exists():
-                ar.prefetch(quiet)
+            ar.ensure_cache(quiet)
             if not quiet:
                 print("git-autoshare submodule-add added --reference", ar.repo_dir)
             cmd = cmd[:index] + ["--reference", ar.repo_dir] + cmd[index:]

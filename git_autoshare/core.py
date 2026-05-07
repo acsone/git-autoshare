@@ -171,7 +171,9 @@ class AutoshareRepository:
         self.private = private
         self.repo_dir = os.path.join(cache_dir(), self.host, self.repo)
 
-    def prefetch(self, quiet):
+    def prefetch(self, quiet, orgs=None):
+        if orgs is None:
+            orgs = self.orgs
         new_repo_dir = False
         if not os.path.exists(os.path.join(self.repo_dir, "objects")):
             new_repo_dir = True
@@ -179,7 +181,7 @@ class AutoshareRepository:
                 os.makedirs(self.repo_dir)
             subprocess.check_call([git_bin(), "init", "--bare"], cwd=self.repo_dir)
 
-        for org in self.orgs:
+        for org in orgs:
             if self.private:
                 repo_url = "ssh://git@{host}/{org}/{repo}.git".format(
                     host=self.host, org=org, repo=self.repo
@@ -202,6 +204,30 @@ class AutoshareRepository:
                 if new_repo_dir:
                     shutil.rmtree(self.repo_dir)
                 raise
+
+    def has_org_refs(self, org):
+        """True if the cache already holds at least one ref under
+        refs/git-autoshare/<org>/heads/."""
+        result = subprocess.run(
+            [
+                git_bin(),
+                "for-each-ref",
+                "--format=%(refname)",
+                "refs/git-autoshare/{}/heads/".format(org),
+            ],
+            cwd=self.repo_dir,
+            capture_output=True,
+        )
+        return bool(result.stdout.strip())
+
+    def ensure_cache(self, quiet):
+        """Make sure the cache exists and contains refs for every configured org."""
+        if not os.path.exists(os.path.join(self.repo_dir, "objects")):
+            self.prefetch(quiet)
+            return
+        missing = [org for org in self.orgs if not self.has_org_refs(org)]
+        if missing:
+            self.prefetch(quiet, orgs=missing)
 
     def __hash__(self):
         return hash(self.repo_dir + str(self.private) + str(self.orgs))
