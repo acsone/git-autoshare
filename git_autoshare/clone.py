@@ -5,7 +5,7 @@
 import subprocess
 import sys
 
-from .core import find_autoshare_repository, git_bin
+from .core import enable_gevent, find_autoshare_repository, git_bin
 from .submodule import iter_submodules
 from .submodule import update as submodule_update
 
@@ -35,8 +35,26 @@ def main():
     sys.exit(_init_submodules(target, quiet))
 
 
-def _init_submodules(target, quiet):
-    for path, url in iter_submodules(target):
+def _init_submodules(target, quiet, parallel=None):
+    """Use gevent to run init in parallel or fallback to regular loop"""
+    submodules = list(iter_submodules(target))
+    if not submodules:
+        return 0
+    if parallel:
+        if not enable_gevent():
+            print("git-autoshare: gevent not available, falling back to sequential submodule update")
+            parallel = False
+    elif parallel is None:
+        parallel = enable_gevent()
+    if parallel:
+        from gevent.pool import Pool
+
+        pool = Pool(size=min(len(submodules), 10))
+        results = pool.map(
+            lambda pu: submodule_update(target, pu[0], pu[1], quiet), submodules
+        )
+        return next((r for r in results if r != 0), 0)
+    for path, url in submodules:
         r = submodule_update(target, path, url, quiet)
         if r != 0:
             return r

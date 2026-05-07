@@ -22,6 +22,7 @@ setuptools.setup(
     url="http://github.com/acsone/git-autoshare",
     packages=["git_autoshare"],
     install_requires=["appdirs", "click", "pyyaml"],
+    extras_require={"parallel": ["gevent"]},
     python_requires=">=3.6",
     setup_requires=["setuptools-scm"],
     entry_points={

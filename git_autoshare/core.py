@@ -13,6 +13,24 @@ from . import giturlparse
 
 APP_NAME = "git-autoshare"
 
+_gevent_enabled = None
+
+
+def enable_gevent():
+    """Detect gevent and monkey-patch subprocess if available. Idempotent.
+    Returns True if gevent is available and ready to use, False otherwise."""
+    global _gevent_enabled
+    if _gevent_enabled is not None:
+        return _gevent_enabled
+    try:
+        from gevent import monkey
+    except ImportError:
+        _gevent_enabled = False
+        return False
+    monkey.patch_subprocess()
+    _gevent_enabled = True
+    return True
+
 
 def cache_dir():
     return os.environ.get("GIT_AUTOSHARE_CACHE_DIR") or appdirs.user_cache_dir(APP_NAME)
